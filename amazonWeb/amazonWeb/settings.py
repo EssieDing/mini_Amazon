@@ -13,8 +13,8 @@ import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
+#BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -31,13 +31,14 @@ ALLOWED_HOSTS = ['web', '127.0.0.1', 'localhost', 'vcm-31009.vm.duke.edu']
 # Application definition
 
 INSTALLED_APPS = [
+    'amazon.apps.AmazonConfig',
+    'users.apps.UsersConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [
@@ -76,13 +77,13 @@ WSGI_APPLICATION = 'amazonWeb.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',   # 数据库引擎
-        'NAME': 'mini_amazon',         # 数据库名，Django不会帮你创建，需要自己进入数据库创建。
-        'USER': 'postgres',     # 设置的数据库用户名
-        'PASSWORD': 'passw0rd',     # 设置的密码
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'db', 
+        'USER': 'postgres',
+        'PASSWORD': 'passw0rd',
         #'HOST': 'db',    # run in docker
         'HOST': 'localhost',  # run in local system 
-        'PORT': '5432',         # 数据库使用的端口
+        'PORT': '5432',
     }
 }
 
@@ -105,7 +106,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
@@ -121,8 +121,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

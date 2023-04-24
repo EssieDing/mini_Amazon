@@ -6,6 +6,4 @@ class UsersConfig(AppConfig):
 
     def ready(self):
         # import all signals
-        from . import signals
-
-
+        import users.signals
