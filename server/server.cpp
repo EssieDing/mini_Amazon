@@ -10,69 +10,26 @@
 #include<thread>
 
 
-class WorldHandler {
-public:
-    WorldHandler() {}
-    void operator()(int Connect, sockaddr_in ClientAddr) {
-        // std::cout<<"Client connected!"<<std::endl;
-        // pqxx::connection *C;
-        // try{
-        //     C = new pqxx::connection("dbname=trades user=postgres password=passw0rd host=db port=5432");
-        //     //C = new pqxx::connection("dbname=trades user=postgres password=passw0rd");
-            
-        //     if(C->is_open()){
-        //         std::cout<<"Connected to database successfully: "<< C->dbname()<<std::endl;
-        //     }else{
-        //         std::cerr<<"Can't open database"<<std::endl;
-        //         exit(EXIT_FAILURE);
-        //     }
-        // }catch(const std::exception &e){
-        //     std::cerr<<e.what()<<std::endl;
-        //     exit(EXIT_FAILURE);
-        // }
-        
-        
-        // //read request 
-        std::vector<char> buf(10000);
-        int bytes = recv(Connect, buf.data(), buf.size(), 0);
-        
-        //read request length
-        std::string raw_str(buf.data(), bytes);
-        // std::cout<<"Request raw request: "<<raw_str<<std::endl;
-        size_t first_line_end = raw_str.find("\n");
-        if (first_line_end == std::string::npos) {
-            std::cerr << "Invalid request!" << std::endl;
-            return;
-        }
-        int request_length = std::stoi(raw_str.substr(0, first_line_end));
-        std::cout<<"Request length: "<<request_length<<std::endl;
+// class WorldHandler {
+// public:
+//     WorldHandler() {}
+//     void operator()() {
+//         while(true){
+//             receive_Aresponse_from_world();
+//         }
+//     }    
+// };
 
-        size_t request_start = first_line_end + 1;
-        std::string request=raw_str.substr(request_start);
-        int total_bytes=request.length();
-        while(request_length>=total_bytes){
-            std::vector<char> buf(10000);
-            int bytes = recv(Connect, buf.data(), buf.size(), 0);
-            request.append(buf.data(),bytes);
-            if(bytes>0){
-                total_bytes+=bytes;
-            }
-            else
-                break;
-        }
-      
-    }    
-};
 
-class UPSHandler {
-public:
-    UPSHandler() {}
-    void operator()(int Connect, sockaddr_in ClientAddr) {
-                // //read request 
-        std::vector<char> buf(10000);
-        int bytes = recv(Connect, buf.data(), buf.size(), 0);
-    }
-};
+// class UPSHandler {
+// public:
+//     UPSHandler() {}
+//     void operator() (){
+//         while(true){
+//             receive_UACommands_from_UPS();
+//         }
+//     }
+// };
 
 
 int main(int argc, char *argv[]) {
@@ -108,24 +65,8 @@ int main(int argc, char *argv[]) {
             std::cout<<"Amazon: Connected to UPS"<<std::endl;
         }
 
-        // fd_set readfds;
-        // while(true){
-        //     FD_ZERO(&readfds);
-        //     FD_SET(world_sock, &readfds);
-        //     FD_SET(ups_sock, &readfds);
-        //     int maxfd = std::max(world_sock, ups_sock);
-        //     select(maxfd+1, &readfds, NULL, NULL, NULL);
-        //     int bytes;
-        //     std::vector<char> buf(10000);
-        //     if(FD_ISSET(world_sock, &readfds)){
-        //         bytes = recv(world_sock, buf.data(), buf.size(), 0);
-        //     }
-        //     if(FD_ISSET(ups_sock, &readfds)){
-        //         // PRINTID std::cout<<"read from server"<<std::endl;
-        //         std::vector<char> buf_server(10000);
-        //         bytes = recv(ups_sock, buf_server.data(), buf_server.size(), 0);
-        //     }
-        // }
+        // pool.enqueue(WorldHandler());
+        // pool.enqueue(UPSHandler());
         while (true)
         {
             sleep(1);

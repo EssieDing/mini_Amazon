@@ -20,7 +20,9 @@
 #include "protobuf/world_amazon.pb.h"
 #include "protobuf/amazon_ups.pb.h"
 #include "common.hpp"
-
+#include "ThreadPool.h"
+// #include "world_handle.hpp"
+// #include "UPS_handle.hpp"
 typedef struct warehouse{
     int id;
     int x;
@@ -99,7 +101,6 @@ int Amazon_wait_for_UPS(int port,int& world_id){
 
     AUInitConnect auinitconnect;
     auinitconnect.set_worldid(world_id);
-    auinitconnect.set_seqnum(0);
 
     std::cout<<"Amazon: UPS world id "<<auinitconnect.worldid()<<std::endl;
     try{
