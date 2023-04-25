@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.rmd": "markdown",
         "iostream": "cpp",
         "future": "cpp",
         "cctype": "cpp",
@@ -64,6 +65,7 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp",
-        "strstream": "cpp"
+        "strstream": "cpp",
+        "*.inc": "cpp"
     }
 }

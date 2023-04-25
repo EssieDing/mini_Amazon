@@ -8,6 +8,7 @@
 #include<cstring>
 #include<iostream>
 #include<thread>
+#include <pqxx/pqxx>
 
 
 class WorldHandler {
@@ -73,6 +74,24 @@ public:
         int bytes = recv(Connect, buf.data(), buf.size(), 0);
     }
 };
+
+
+pqxx::connection * connectDB() {
+    pqxx::connection *C;
+    try{
+        C = new pqxx::connection("dbname=db user=postgres password=passw0rd hostaddr=127.0.0.1 port=5432");
+            
+        if(C->is_open()){
+            std::cout<<"Connected to database successfully: "<< C->dbname()<<std::endl;
+        }else{
+            std::cerr<<"Can't open database"<<std::endl;
+            exit(EXIT_FAILURE);
+        }
+    }catch(const std::exception &e){
+        std::cerr<<e.what()<<std::endl;
+        exit(EXIT_FAILURE);
+    }
+}
 
 
 int main(int argc, char *argv[]) {
