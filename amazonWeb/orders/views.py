@@ -5,17 +5,12 @@ from cart.cart import Cart
 from django.contrib.auth.decorators import login_required
 # from .tasks import order_created
 
-@login_required
 def order_create(request):
     cart = Cart(request)
-    item_id = []
-    item_descriptions = []
-    item_quantity = []
     if request.method == 'POST':
         form = OrderCreateForm(request.POST)
         if form.is_valid():
             form.instance.owner = request.user
-            form.instance.owner = cart.get_total_price
             order = form.save()
             for item in cart:
                 # Order.objects.create(owner = request.user,
@@ -30,15 +25,10 @@ def order_create(request):
                                         product=item['product'],
                                         price=item['price'],
                                         quantity=item['quantity'])
-                item_id.append(item['product'].id)
-                item_descriptions.append(item['product'].description)
-                item_quantity.append(item['quantity'])
-            sendOrder(order, item_id, item_descriptions, item_quantity)    
             # clear the cart
             cart.clear()
             # launch asynchronous task
             #order_created.delay(order.id)
-            
             return render(request,
                           'order/created.html',
                           {'order': order})
@@ -55,16 +45,3 @@ def viewOrder(request):
         'order_list':order_list,
     }
     return render(request, 'order/orders.html', context)
-
-# send order info to the server socket:
-#  order: id, addr_x, addr_y, ups_id, product_description, id, quantity
-def sendOrder(order, item_id, item_descriptions, item_quantity):
-    order_id = order.id
-    addr_x = order.addr_x
-    addr_y = order.addr_y
-    ups_id = order.ups_id
-    sent_order = order_id + ';' + addr_x + ";" + addr_y + ";" + ups_id + ";"
-    for id in item_id:
-        sent_order += id
-    for description in item_descriptions:
-        s

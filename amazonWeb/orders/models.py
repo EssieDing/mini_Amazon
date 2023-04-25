@@ -40,7 +40,6 @@ class Order(models.Model):
     ]
     status = models.CharField(
         max_length=50, choices=STATUS_CHOICES, default='packing')
-    price = models.IntegerField(default=0)
     addr_x = models.IntegerField(default=5)
     addr_y = models.IntegerField(default=5)
     # for ups connection
