@@ -33,6 +33,8 @@ ALLOWED_HOSTS = ['web', '127.0.0.1', 'localhost', 'vcm-31009.vm.duke.edu']
 INSTALLED_APPS = [
     'amazon.apps.AmazonConfig',
     'users.apps.UsersConfig',
+    'cart.apps.CartConfig',
+    'orders.apps.OrdersConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -64,6 +66,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'cart.context_processor.cart',
             ],
         },
     },
@@ -121,6 +124,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
@@ -129,8 +135,10 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CART_SESSION_ID = 'cart'
 
-LOGIN_REDIRECT_URL = 'home'
+
+LOGIN_REDIRECT_URL = 'product_list'
 LOGIN_URL = 'login'
 
 

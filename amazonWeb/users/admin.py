@@ -1,10 +1,11 @@
 from django.contrib import admin
 from .models import *
-from amazon.models import Item, Order, Package, Inventory
+from amazon.models import Product, Stock, Category
+from orders.models import Order
 
 # Register your models here.
-admin.site.register(Item)
+admin.site.register(Product)
 admin.site.register(Order)
-admin.site.register(Package)
-admin.site.register(Inventory)
+admin.site.register(Stock)
 admin.site.register(Profile)
+admin.site.register(Category)

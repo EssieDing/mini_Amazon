@@ -1,16 +1,16 @@
 {% extends "users/base.html" %}
 {% block content %}
     <div class="row">
-        <h1>{{ item.description }}</h1>
+        <h1>{{ product.description }}</h1>
     </div>
     <div class="container">
         <!-- "buy" & "add to cart" option -->
         <div class="col-md-4 col-md-offset-4">
                 <div class="m-4">
-                    <span style="font-size:xx-large; display:inline-block; text-align:center;">${{ item.price|floatformat:2 }} </span>
+                    <span style="font-size:xx-large; display:inline-block; text-align:center;">${{ product.price|floatformat:2 }} </span>
                 </div>
 
-                <form name="item_form" class="card p-2 ml-3 mt-3" method="POST" onsubmit="return validForm();">
+                <form name="product_form" class="card p-2 ml-3 mt-3" method="POST" onsubmit="return validForm();">
                     {% csrf_token %}
                     <input type="number" name="count" min="1" max="999" class="form-control" placeholder="Quantity" required>
                     <button name="action" value="buy" class="btn btn-primary mt-3">Buy Now</button>

@@ -1,60 +1,51 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.urls import reverse
 from django.utils.timezone import now
 
 # Create your models here.
 
+class Category(models.Model):
+    name = models.CharField(max_length=200, db_index=True)
+    slug = models.SlugField(max_length=200, db_index=True, unique=True)
 
-class Item(models.Model):
+    class Meta:
+        ordering = ('name',)
+        verbose_name = 'category'
+        verbose_name_plural = 'categories'
+
+    def __str__(self):
+        return self.name
+    
+    def get_absolute_url(self):
+        return reverse('product_list_by_category',args=[self.slug])
+    
+class Product(models.Model):
     id = models.IntegerField(primary_key=True)
+    category = models.ForeignKey(Category, related_name='category', on_delete=models.CASCADE)
+    slug = models.SlugField(max_length=200, db_index=True)
+    image = models.ImageField(upload_to='products/%Y/%m/%d', blank=True)
     description = models.CharField(max_length=100, blank=False, null=False)
     price = models.FloatField(default=0.99, blank=False, null=False)
-
+    
+    class Meta:
+        ordering = ('id',)
+        index_together = (('id', 'slug'),)
+        
     def __str__(self):
         return self.description
+    
+    def get_absolute_url(self):
+        return reverse('product_detail',args=[self.id, self.slug])
 
     
-class Package(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="packages")
-    warehouse_id = models.IntegerField()
-    STATUS_CHOICES = [
-        ('PACKING', 'packing'),
-        ('PACKED', 'packed'),
-        ('LOADING', 'loading'),
-        ('LOADED', 'loaded'),
-        ('DELIVERING', 'delivering'),
-        ('DELIVERED', 'delivered'),
-    ]
-    status = models.CharField(
-        max_length=50, choices=STATUS_CHOICES, default='packing')
-    addr_x = models.IntegerField(default=5)
-    addr_y = models.IntegerField(default=5)
-    # for ups connection
-    ups_id = models.IntegerField()
-    
-class Order(models.Model):
-    # customer info
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
-    
-    # order info
-    id = models.AutoField(primary_key=True)
-    item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True)
-    item_cnt = models.IntegerField(default=1)
-    package = models.ForeignKey(Package, on_delete=models.CASCADE, related_name="orders", null=True, blank=True)
 
-    # return the total price for current order
-    def total(self):
-        return self.item_cnt * self.item.price
-
-    def __str__(self):
-        return "<" + str(self.item_id) + ', ' + str(self.item_cnt) + ">"
-    
-
-class Inventory(models.Model):
-    item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True)
-    item_cnt = models.IntegerField(default=10)
+class Stock(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    product_cnt = models.IntegerField(default=10)
     warehouse_id = models.IntegerField()
 
     class Meta:
-        unique_together = ["item", "warehouse_id"]
-        db_table = 'inventory'
+        unique_together = ["product", "warehouse_id"]
+        db_table = 'stock'
+

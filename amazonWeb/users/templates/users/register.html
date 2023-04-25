@@ -1,4 +1,4 @@
-{% extends "users/base.html" %}
+{% extends "amazon/base.html" %}
 {% block content %}
     <div class="content-section">
         <form method="POST">
@@ -13,7 +13,7 @@
         </form>
         <div class="border-top pt-3">
             <small class="text-muted">
-                Already Have An Account? <a class="ml-2" href="{% url 'login' %}">Log In</a>
+                Already Have An Account? <a class="ml-2" href="{% url 'users:login' %}">Log In</a>
             </small>
         </div>
     </div>
