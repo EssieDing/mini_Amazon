@@ -9,8 +9,6 @@
 #include<iostream>
 #include<thread>
 
-std::vector<std::unique_ptr<std::thread> > threads;
-
 
 class WorldHandler {
 public:
@@ -78,10 +76,10 @@ public:
 
 
 int main(int argc, char *argv[]) {
-    ThreadPool pool(50);
+    
     // pqxx::connection *C;
     // C = new pqxx::connection("dbname=trades user=postgres password=passw0rd host=db port=5432");
-    //C = new pqxx::connection("dbname=trades user=postgres password=passw0rd");
+    // C = new pqxx::connection("dbname=trades user=postgres password=passw0rd");
     // DropTable(C);
     // CreateTable("./CreateTable.txt",C);
     // std::string execution = "set transaction isolation level repeatable read;";
@@ -93,8 +91,6 @@ int main(int argc, char *argv[]) {
     int world_id;
     Warehouse w(1,2,3);
     for(;;){
-        int world_sock;
-        int ups_sock;
         if((world_sock=Amazon_connect_to_world(23456,w,world_id))==-1){
             std::cout<<"Amazon: Failed to connect to world"<<std::endl;
             sleep(1);
@@ -112,52 +108,32 @@ int main(int argc, char *argv[]) {
             std::cout<<"Amazon: Connected to UPS"<<std::endl;
         }
 
-        fd_set readfds;
-        while(true){
-            FD_ZERO(&readfds);
-            FD_SET(Connect1, &readfds);
-            FD_SET(Connect2, &readfds);
-            int maxfd = std::max(Connect1, Connect2);
-            select(maxfd+1, &readfds, NULL, NULL, NULL);
-            int bytes;
-            std::vector<char> buf(10000);
-            if(FD_ISSET(Connect1, &readfds)){
-                // PRINTID std::cout<<"read from client"<<std::endl;
-                bytes = recv(Connect1, buf.data(), buf.size(), 0);
-                if(bytes>0)
-                    send(Connect2, buf.data(), bytes, 0);
-                else{
-                    LOG_OUTPUT(PRINTID(Connect1)<<"Tunnel closed"<<std::endl;)
-                    return;
-                }
-            }
-            if(FD_ISSET(Connect2, &readfds)){
-                // PRINTID std::cout<<"read from server"<<std::endl;
-                std::vector<char> buf_server(10000);
-                bytes = recv(Connect2, buf_server.data(), buf_server.size(), 0);
-                if(bytes>0)
-                    send(Connect1, buf_server.data(), bytes, 0);
-                else{
-                    LOG_OUTPUT(PRINTID(Connect1)<<"Tunnel closed"<<std::endl;)
-                    return;
-                }
-            }
+        // fd_set readfds;
+        // while(true){
+        //     FD_ZERO(&readfds);
+        //     FD_SET(world_sock, &readfds);
+        //     FD_SET(ups_sock, &readfds);
+        //     int maxfd = std::max(world_sock, ups_sock);
+        //     select(maxfd+1, &readfds, NULL, NULL, NULL);
+        //     int bytes;
+        //     std::vector<char> buf(10000);
+        //     if(FD_ISSET(world_sock, &readfds)){
+        //         bytes = recv(world_sock, buf.data(), buf.size(), 0);
+        //     }
+        //     if(FD_ISSET(ups_sock, &readfds)){
+        //         // PRINTID std::cout<<"read from server"<<std::endl;
+        //         std::vector<char> buf_server(10000);
+        //         bytes = recv(ups_sock, buf_server.data(), buf_server.size(), 0);
+        //     }
+        // }
+        while (true)
+        {
+            sleep(1);
         }
+        
 
     }
 
-
-
-
-    while (true) {
-        sockaddr_in ClientAddr;
-        socklen_t client_len = sizeof(ClientAddr);
-        Connect = accept(Server, (sockaddr*)&ClientAddr, &client_len);
-
-        std::cout<<"New client connected!"<<std::endl;
-        pool.enqueue((ClientHandler()), Connect,ClientAddr);
-
-    }
     return 0;
 }
 

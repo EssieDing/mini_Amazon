@@ -13,7 +13,7 @@ bool sendMesgTo(const T & message, google::protobuf::io::FileOutputStream *out) 
     // Don’t worry, this is fast.
     google::protobuf::io::CodedOutputStream output(out);
     // Write the size.
-    const int size = message.ByteSize();
+    const int size = message.ByteSizeLong();
     output.WriteVarint32(size);
     uint8_t* buffer=output.GetDirectBufferForNBytesAndAdvance(size);
     if (buffer != NULL) {
