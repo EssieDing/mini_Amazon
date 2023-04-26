@@ -10,26 +10,6 @@
 #include<thread>
 #include <pqxx/pqxx>
 
-class WorldHandler {
-public:
-    WorldHandler() {}
-    void operator()() {
-        while(true){
-            receive_Aresponse_from_world();
-        }
-    }    
-};
-
-
-class UPSHandler {
-public:
-    UPSHandler() {}
-    void operator() (){
-        while(true){
-            receive_UACommands_from_UPS();
-        }
-    }
-};
 
 
 int main(int argc, char *argv[]) {
@@ -67,6 +47,7 @@ int main(int argc, char *argv[]) {
 
         pool.enqueue(WorldHandler());
         pool.enqueue(UPSHandler());
+        pool.enqueue(FrontendHandler());
         // while (true)
         // {
         //     sleep(1);

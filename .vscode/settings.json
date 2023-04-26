@@ -66,6 +66,7 @@
         "typeinfo": "cpp",
         "variant": "cpp",
         "strstream": "cpp",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "*.ipp": "cpp"
     }
 }

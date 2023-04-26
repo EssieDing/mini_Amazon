@@ -49,6 +49,10 @@ inline void Update_Order_Status(long long order_id, std::string status){
         return;
     }
 
+    if(C->is_open()){
+        C->disconnect();
+        std::cout << "Closed database successfully" << std::endl;
+    }
 
 }
 

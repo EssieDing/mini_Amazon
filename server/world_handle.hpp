@@ -1,5 +1,6 @@
 #ifndef WORLD_HANDLE_HPP
 #define WORLD_HANDLE_HPP
+
 #include<mutex>
 #include<vector>
 #include<thread>
@@ -224,6 +225,18 @@ int receive_Aresponse_from_world(){
     }
     return 0;
 }
+
+class WorldHandler {
+public:
+    WorldHandler() {}
+    void operator()() {
+        while(true){
+            receive_Aresponse_from_world();
+        }
+    }    
+};
+
+
 
 
 #endif

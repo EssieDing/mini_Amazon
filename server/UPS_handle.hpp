@@ -136,4 +136,17 @@ int receive_UACommands_from_UPS(){
     return 0;
 }
 
+
+class UPSHandler {
+public:
+    UPSHandler() {}
+    void operator() (){
+        while(true){
+            receive_UACommands_from_UPS();
+        }
+    }
+};
+
+
+
 #endif

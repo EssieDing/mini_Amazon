@@ -23,6 +23,7 @@
 #include "ThreadPool.h"
 #include "world_handle.hpp"
 #include "UPS_handle.hpp"
+#include "frontend_handle.hpp"
 typedef struct warehouse{
     int id;
     int x;

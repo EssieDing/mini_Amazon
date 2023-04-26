@@ -9,7 +9,7 @@ const char *ups_ip = "";
 const char *front_end_ip = "127.0.0.1";
 const int world_port = 23456;
 const int ups_port = 5688;
-const int front_end_port = 12345;
+const int front_end_port = 8873;
 
 int world_sock = -1;
 int ups_sock = -1;
