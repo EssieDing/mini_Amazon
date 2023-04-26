@@ -31,6 +31,7 @@ class Order(models.Model):
     # product_cnt = models.IntegerField(default=1)
     warehouse_id = models.IntegerField(default=1)
     STATUS_CHOICES = [
+        ('ORDERED', 'ordered'),
         ('PACKING', 'packing'),
         ('PACKED', 'packed'),
         ('LOADING', 'loading'),
@@ -39,7 +40,8 @@ class Order(models.Model):
         ('DELIVERED', 'delivered'),
     ]
     status = models.CharField(
-        max_length=50, choices=STATUS_CHOICES, default='packing')
+        max_length=50, choices=STATUS_CHOICES, default='ordered')
+    price = models.IntegerField(default=0)
     addr_x = models.IntegerField(default=5)
     addr_y = models.IntegerField(default=5)
     # for ups connection

@@ -21,8 +21,8 @@
 #include "protobuf/amazon_ups.pb.h"
 #include "common.hpp"
 #include "ThreadPool.h"
-// #include "world_handle.hpp"
-// #include "UPS_handle.hpp"
+#include "world_handle.hpp"
+#include "UPS_handle.hpp"
 typedef struct warehouse{
     int id;
     int x;

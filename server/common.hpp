@@ -12,6 +12,7 @@
 #include"protobuf/amazon_ups.pb.h"
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
+#include "db_func.hpp"
 
 extern long long server_seq_num;
 extern std::mutex server_seq_num_mutex;
@@ -35,6 +36,7 @@ typedef struct OrderInfo{
     std::string account_name;
     int delivery_x;
     int delivery_y;
+    OrderInfo()=default;
     OrderInfo(long long package_id,std::string account_name,int delivery_x,int delivery_y):\
     package_id(package_id),account_name(account_name),delivery_x(delivery_x),delivery_y(delivery_y){}
 }OrderInfo;

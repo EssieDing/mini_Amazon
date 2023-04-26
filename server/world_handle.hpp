@@ -67,10 +67,10 @@ int send_ApurchaseMore_to_world(int wh_id,std::vector<AProduct> &products,\
     return 0;
 }
 
-int send_APack_to_world(int wh_id,auto &packs,long long shipid){
+int send_APack_to_world(int wh_id,google::protobuf::RepeatedPtrField<AProduct> products,long long shipid){
     APack apack;
     apack.set_whnum(wh_id);
-    for(auto &p:packs){
+    for(auto &p:products){
         auto thing = apack.add_things();
         *thing=std::move(p);
     }
@@ -95,7 +95,7 @@ int send_APutOnTruck_to_world(int wh_id,int truckid, int shipid){
     ACommands acommands;
     acommands.add_load()->CopyFrom(aputontruck);
     pool.enqueue(Send_command_to_world,acommands,seq_num);
-
+    return 0;
 }
 
 // int send_AQuery_to_world(int wh_id,std::vector<AQuery> &queries){
@@ -125,9 +125,15 @@ int Process_Arrived(APurchaseMore now_arrived){
         send_acks_to_world(now_arrived.seqnum());
     }
     recv_acks[now_arrived.seqnum()]=true;
-    OrderInfo &now_orderinfo=seqnum_to_orderinfo[now_arrived.seqnum()];
+    auto it = seqnum_to_orderinfo.find(now_arrived.seqnum());
+    if(it==seqnum_to_orderinfo.end()){
+        std::cout<<"Amazon: seqnum_to_orderinfo not found"<<std::endl;
+        return -1;
+    }
+    OrderInfo &now_orderinfo=it->second;
     send_APack_to_world(now_arrived.whnum(),now_arrived.things(),now_orderinfo.package_id);
     //TO-DO： update order status to be packing
+    Update_Order_Status(now_orderinfo.package_id,"packing");
 
     AUDeliveryLocation audeliverylocation;
     audeliverylocation.set_x(now_orderinfo.delivery_x);
@@ -145,10 +151,11 @@ int Process_APacked(APacked now_packed){
         send_acks_to_world(now_packed.seqnum());
     }
     recv_acks[now_packed.seqnum()]=true;
-
+    Update_Order_Status(now_packed.shipid(),"packed");
     while(shipid_to_truckid.find(now_packed.shipid())==shipid_to_truckid.end()){
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
+    Update_Order_Status(now_packed.shipid(),"loading");
     send_APutOnTruck_to_world(shipid_to_whid[now_packed.shipid()],shipid_to_truckid[now_packed.shipid()],now_packed.shipid());
    
     send_acks_to_world(now_packed.seqnum());
@@ -180,6 +187,7 @@ int Process_Aresponse(AResponses &aresponses){
             send_acks_to_world(now_loaded.seqnum());
         }
         recv_acks[now_loaded.seqnum()]=true;
+        Update_Order_Status(now_loaded.shipid(),"delivering");
         Send_AULoaded_to_UPS(now_loaded.shipid());
         send_acks_to_world(now_loaded.seqnum());
     }
@@ -196,6 +204,7 @@ int Process_Aresponse(AResponses &aresponses){
     for(auto &now_ack:aresponses.acks()){
         send_acks[now_ack]=true;
     }
+    return 0;
 }
 
 int receive_Aresponse_from_world(){

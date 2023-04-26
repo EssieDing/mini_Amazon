@@ -10,45 +10,26 @@
 #include<thread>
 #include <pqxx/pqxx>
 
-
-// class WorldHandler {
-// public:
-//     WorldHandler() {}
-//     void operator()() {
-//         while(true){
-//             receive_Aresponse_from_world();
-//         }
-//     }    
-// };
-
-
-// class UPSHandler {
-// public:
-//     UPSHandler() {}
-//     void operator() (){
-//         while(true){
-//             receive_UACommands_from_UPS();
-//         }
-//     }
-// };
-
-
-pqxx::connection * connectDB() {
-    pqxx::connection *C;
-    try{
-        C = new pqxx::connection("dbname=db user=postgres password=passw0rd hostaddr=127.0.0.1 port=5432");
-            
-        if(C->is_open()){
-            std::cout<<"Connected to database successfully: "<< C->dbname()<<std::endl;
-        }else{
-            std::cerr<<"Can't open database"<<std::endl;
-            exit(EXIT_FAILURE);
+class WorldHandler {
+public:
+    WorldHandler() {}
+    void operator()() {
+        while(true){
+            receive_Aresponse_from_world();
         }
-    }catch(const std::exception &e){
-        std::cerr<<e.what()<<std::endl;
-        exit(EXIT_FAILURE);
+    }    
+};
+
+
+class UPSHandler {
+public:
+    UPSHandler() {}
+    void operator() (){
+        while(true){
+            receive_UACommands_from_UPS();
+        }
     }
-}
+};
 
 
 int main(int argc, char *argv[]) {
@@ -84,12 +65,12 @@ int main(int argc, char *argv[]) {
             std::cout<<"Amazon: Connected to UPS"<<std::endl;
         }
 
-        // pool.enqueue(WorldHandler());
-        // pool.enqueue(UPSHandler());
-        while (true)
-        {
-            sleep(1);
-        }
+        pool.enqueue(WorldHandler());
+        pool.enqueue(UPSHandler());
+        // while (true)
+        // {
+        //     sleep(1);
+        // }
         
 
     }

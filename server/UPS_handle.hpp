@@ -107,7 +107,7 @@ int Process_UACommands(UACommands &uacommands){
             Send_ack_to_UPS(now_delivered.seqnum());
 
         }
-        //TODO: update order status
+        Update_Order_Status(now_delivered.packageid(),"delivered");
         Send_ack_to_UPS(now_delivered.seqnum());
         recv_acks[now_delivered.seqnum()]=true;
     }
