@@ -77,7 +77,7 @@ def sendOrder(order, item_id, item_descriptions, item_quantity):
         description_node.text = str(description)
         quantity_node = ET.SubElement(item_node, 'quantity')
         quantity_node.text = str(quantity)
-    username_node = ET.SubElement(root, 'order_id')
+    username_node = ET.SubElement(root, 'account_name')
     username_node.text = str(userName)
     order_id_node = ET.SubElement(root, 'order_id')
     order_id_node.text = str(order_id)
@@ -92,7 +92,7 @@ def sendOrder(order, item_id, item_descriptions, item_quantity):
     print(xml_str)
     
     HOST = '127.0.0.1'
-    PORT = 1234
+    PORT = 8873
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         try:
             s.connect((HOST, PORT))

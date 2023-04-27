@@ -17,8 +17,25 @@
 
 
 int Process_order(tinyxml2::XMLDocument& doc ){
-
+    std::cout<<"Amazon: process order from front end"<<std::endl;
+    std::vector<AProduct> products;
+    tinyxml2::XMLElement *product_list = doc.RootElement()->FirstChildElement("items");
+    tinyxml2::XMLElement *product = product_list->FirstChildElement();
+    while(product!=nullptr){
+        AProduct aproduct;
+        aproduct.set_id(std::stoll(product->FirstChildElement("id")->GetText()));
+        aproduct.set_description(product->FirstChildElement("description")->GetText());
+        aproduct.set_count(std::stoi(product->FirstChildElement("count")->GetText()));
+        products.push_back(aproduct);
+        product=product->NextSiblingElement();
+    }
+    std::string accountname = doc.RootElement()->FirstChildElement("account_name")->GetText();
+    long long order_id=std::stoll(doc.RootElement()->FirstChildElement("order_id")->GetText());
+    int addr_x=std::stoi(doc.RootElement()->FirstChildElement("addr_x")->GetText());
+    int addr_y=std::stoi(doc.RootElement()->FirstChildElement("addr_y")->GetText());
     // send_ApurchaseMore_to_world
+    // TO-DO: Change warehouse id
+    send_ApurchaseMore_to_world(1,products,order_id,accountname,addr_x,addr_y);
     return 0;   
 }
 
