@@ -14,6 +14,8 @@ const int front_end_port = 8873;
 int world_sock = -1;
 int ups_sock = -1;
 
+std::vector<Warehouse> w_list;
+
 std::bitset<10000> send_acks; //whether receiver ack for sent message
 std::bitset<10000> recv_acks; //whether finished received message
 

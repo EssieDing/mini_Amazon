@@ -26,9 +26,8 @@ int main(int argc, char *argv[]) {
     //try link to the world locally
 
     int world_id;
-    Warehouse w(1,2,3);
     for(;;){
-        if((world_sock=Amazon_connect_to_world(23456,w,world_id))==-1){
+        if((world_sock=Amazon_connect_to_world(23456,world_id))==-1){
             std::cout<<"Amazon: Failed to connect to world"<<std::endl;
             sleep(1);
             continue;

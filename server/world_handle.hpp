@@ -64,11 +64,13 @@ int send_ApurchaseMore_to_world(int wh_id,std::vector<AProduct> &products,\
     OrderInfo orderinfo{packageid,accountname,deliver_x,deliver_y};
     seqnum_to_orderinfo[seq_num]=orderinfo;
     shipid_to_whid[packageid]=wh_id;
+    std::cout<<"Amazon: send APurchaseMore to world shipid: "<<packageid<<" seq_num: "<<seq_num<<std::endl;
     pool.enqueue(Send_command_to_world,acommands,seq_num);
     return 0;
 }
 
 int send_APack_to_world(int wh_id,google::protobuf::RepeatedPtrField<AProduct> products,long long shipid){
+
     APack apack;
     apack.set_whnum(wh_id);
     for(auto &p:products){
@@ -81,6 +83,7 @@ int send_APack_to_world(int wh_id,google::protobuf::RepeatedPtrField<AProduct> p
     send_acks[seq_num]=false;
     ACommands acommands;
     acommands.add_load()->CopyFrom(apack);
+    std::cout<<"Amazon: send APack to world shipid: "<<shipid<<" seqnum: "<<seq_num<<std::endl;
     pool.enqueue(Send_command_to_world,acommands,seq_num);
     return 0;
 }
@@ -95,6 +98,7 @@ int send_APutOnTruck_to_world(int wh_id,int truckid, int shipid){
     send_acks[seq_num]=false;
     ACommands acommands;
     acommands.add_load()->CopyFrom(aputontruck);
+    std::cout<<"Amazon: send APutOnTruck to world shipid: "<<shipid<<" seqnum: "<<seq_num<<std::endl;
     pool.enqueue(Send_command_to_world,acommands,seq_num);
     return 0;
 }
@@ -106,6 +110,7 @@ int send_APutOnTruck_to_world(int wh_id,int truckid, int shipid){
 int send_acks_to_world(int ack){
     ACommands acommands;
     acommands.add_acks(ack);
+    std::cout<<"Amazon: send received ack to world: "<<ack<<std::endl;
     pool.enqueue(Send_command_to_world,acommands,-1);
     return 0;
 }
@@ -122,6 +127,7 @@ int send_acks_to_world(int ack){
 //TO-DO: finished, packagestatus
 
 int Process_Arrived(APurchaseMore now_arrived){
+    std::cout<<"Amazon: receive APurchaseMore arrived from world seqnum: "<<now_arrived.seqnum()<<std::endl;
     if(recv_acks[now_arrived.seqnum()]==true){
         send_acks_to_world(now_arrived.seqnum());
     }
@@ -148,6 +154,8 @@ int Process_Arrived(APurchaseMore now_arrived){
 }
 
 int Process_APacked(APacked now_packed){
+
+    std::cout<<"Amazon: receive APacked from world shipid: "<<now_packed.shipid()<<" seqnum: "<<now_packed.seqnum()<<std::endl;
     if(recv_acks[now_packed.seqnum()]==true){
         send_acks_to_world(now_packed.seqnum());
     }
@@ -184,6 +192,7 @@ int Process_Aresponse(AResponses &aresponses){
     //ALoaded loaded received
     //Send AULoaded to UPS
     for(auto &now_loaded:aresponses.loaded()){
+        std::cout<<"Amazon: receive ALoaded from world shipid: "<<now_loaded.shipid()<<" seqnum: "<<now_loaded.seqnum()<<std::endl;
         if(recv_acks[now_loaded.seqnum()]==true){
             send_acks_to_world(now_loaded.seqnum());
         }

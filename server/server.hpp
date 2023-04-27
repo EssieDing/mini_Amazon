@@ -24,15 +24,23 @@
 #include "world_handle.hpp"
 #include "UPS_handle.hpp"
 #include "frontend_handle.hpp"
-typedef struct warehouse{
-    int id;
-    int x;
-    int y;
-    warehouse(int id,int x,int y):id(id),x(x),y(y){}
-}Warehouse;
 
 
-int Amazon_connect_to_world(int port,Warehouse w,int& world_id){
+std::vector<Warehouse> Init_warehouse(){
+    w_list.push_back(Warehouse(1,1,1));
+    w_list.push_back(Warehouse(2,2,2));
+    w_list.push_back(Warehouse(3,3,3));
+    w_list.push_back(Warehouse(4,4,4));
+    w_list.push_back(Warehouse(5,5,5));
+    w_list.push_back(Warehouse(6,6,6));
+    w_list.push_back(Warehouse(7,7,7));
+    w_list.push_back(Warehouse(8,8,8));
+    w_list.push_back(Warehouse(9,9,9));
+    w_list.push_back(Warehouse(10,10,10));
+}
+
+
+int Amazon_connect_to_world(int port,int& world_id){
     struct sockaddr_in serv_addr;
     memset(&serv_addr, 0, sizeof(serv_addr)); 
     serv_addr.sin_family = AF_INET; 
@@ -47,10 +55,12 @@ int Amazon_connect_to_world(int port,Warehouse w,int& world_id){
 
     //create a new world
     AConnect aconnect;
-    auto ainitwarehouse = aconnect.add_initwh();
-    ainitwarehouse->set_id(w.id);
-    ainitwarehouse->set_x(w.x);
-    ainitwarehouse->set_y(w.y);
+    for(auto &w:w_list){
+        auto ainitwarehouse = aconnect.add_initwh();
+        ainitwarehouse->set_id(w.id);
+        ainitwarehouse->set_x(w.x);
+        ainitwarehouse->set_y(w.y);
+    }
     aconnect.set_isamazon(true);
 
     try{

@@ -28,6 +28,15 @@ extern const int front_end_port;
 extern int world_sock;
 extern int ups_sock;
 
+typedef struct warehouse{
+    int id;
+    int x;
+    int y;
+    warehouse(int id,int x,int y):id(id),x(x),y(y){}
+}Warehouse;
+
+extern std::vector<Warehouse> w_list;
+
 extern std::bitset<10000> send_acks; //whether receiver ack for sent message
 extern std::bitset<10000> recv_acks; //whether finished received message
 

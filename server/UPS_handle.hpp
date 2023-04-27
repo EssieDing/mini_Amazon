@@ -44,6 +44,7 @@ int Send_command_to_UPS(AUCommands &aucommands,int seq_num=-1){
 }
 
 int Send_AUInitPickUP_to_UPS(int wh_id,std::string accountname,AUDeliveryLocation* location, google::protobuf::RepeatedPtrField<AProduct> product){
+
     AUInitPickUp auinitpickup;
     auinitpickup.set_whid(wh_id);
     auinitpickup.set_accountname(accountname);
@@ -59,6 +60,7 @@ int Send_AUInitPickUP_to_UPS(int wh_id,std::string accountname,AUDeliveryLocatio
     send_acks[seq_num]=false;
     AUCommands aucommands;
     aucommands.add_pickupreq()->CopyFrom(auinitpickup);
+    std::cout<<"Send_AUInitPickUP_to_UPS seq_num: "<<seq_num<<std::endl;
     pool.enqueue(Send_command_to_UPS,aucommands,seq_num);
     return 0;
 }
@@ -71,6 +73,7 @@ int Send_AULoaded_to_UPS(int shipid){
     send_acks[seq_num]=false;
     AUCommands aucommands;
     aucommands.add_loaded()->CopyFrom(auloaded);
+    std::cout<<"Send_AULoaded_to_UPS seq_num: "<<seq_num<<std::endl;
     pool.enqueue(Send_command_to_UPS,aucommands,seq_num);
     return 0;
 }
@@ -79,6 +82,7 @@ int Send_AULoaded_to_UPS(int shipid){
 int Send_ack_to_UPS(int ack){
     AUCommands aucommands;
     aucommands.add_acks(ack);
+    std::cout<<"Send_received ack to UPS ack: "<<ack<<std::endl;
     pool.enqueue(Send_command_to_UPS,aucommands,-1);
     return 0;
 }

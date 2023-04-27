@@ -13,7 +13,20 @@
 #include "common.hpp"
 #include "world_handle.hpp"
 #include "tinyxml2.h"
+#include "test_backend.hpp"
 
+int select_warehouse(int x,int y){
+    long long min_distance=100000000000000000;
+    int min_id=-1;
+    for(auto &w:w_list){
+        long long distance = (w.x-x)*(w.x-x)+(w.y-y)*(w.y-y);
+        if(distance<min_distance){
+            min_distance=distance;
+            min_id=w.id;
+        }
+    }
+    return min_id;
+}
 
 
 int Process_order(tinyxml2::XMLDocument& doc ){
@@ -34,8 +47,9 @@ int Process_order(tinyxml2::XMLDocument& doc ){
     int addr_x=std::stoi(doc.RootElement()->FirstChildElement("addr_x")->GetText());
     int addr_y=std::stoi(doc.RootElement()->FirstChildElement("addr_y")->GetText());
     // send_ApurchaseMore_to_world
-    // TO-DO: Change warehouse id
-    send_ApurchaseMore_to_world(1,products,order_id,accountname,addr_x,addr_y);
+    int warehouse_id = select_warehouse(addr_x,addr_y);
+    std::cout<<"Amazon: send order to world in Process_order"<<std::endl;
+    send_ApurchaseMore_to_world(warehouse_id,products,order_id,accountname,addr_x,addr_y);
     return 0;   
 }
 
@@ -69,6 +83,8 @@ int receive_data_from_frontend(int Connect){
 }
 
 int Amazon_connect_frontend(int port){
+    //TEST!
+    test_send_Apurchasemore();
     struct sockaddr_in serv_addr;
     int Connect;
     int Server = socket(AF_INET, SOCK_STREAM, 0);
@@ -83,6 +99,7 @@ int Amazon_connect_frontend(int port){
         sockaddr_in ClientAddr;
         socklen_t client_len = sizeof(ClientAddr);
         Connect = accept(Server, (sockaddr*)&ClientAddr, &client_len);
+        std::cout<<"Amazon: Receive order from frontend"<<std::endl;
         pool.enqueue(receive_data_from_frontend,Connect);
     }
 
