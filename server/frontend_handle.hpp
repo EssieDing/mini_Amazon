@@ -46,27 +46,32 @@ int Process_order(tinyxml2::XMLDocument& doc ){
     long long order_id=std::stoll(doc.RootElement()->FirstChildElement("order_id")->GetText());
     int addr_x=std::stoi(doc.RootElement()->FirstChildElement("addr_x")->GetText());
     int addr_y=std::stoi(doc.RootElement()->FirstChildElement("addr_y")->GetText());
+    std::cout<< products[0].GetDescriptor << order_id << accountname << addr_x << " "<< addr_y << std::endl;
     // send_ApurchaseMore_to_world
     int warehouse_id = select_warehouse(addr_x,addr_y);
     std::cout<<"Amazon: send order to world in Process_order"<<std::endl;
-    send_ApurchaseMore_to_world(warehouse_id,products,order_id,accountname,addr_x,addr_y);
+    //send_ApurchaseMore_to_world(warehouse_id,products,order_id,accountname,addr_x,addr_y);
     return 0;   
 }
 
 
 int receive_data_from_frontend(int Connect){
     try{
+        std::cout << "start to receive data from frontend" << std::endl;
         std::vector<char> buf(10000);
         int bytes = recv(Connect, buf.data(), buf.size(), 0);
-    
+        if(bytes <= 0){
+            return 0;
+        }       
         //read request length
         std::string order(buf.data(), bytes);
         while(true){
             std::vector<char> buf(10000);
             int bytes = recv(Connect, buf.data(), buf.size(), 0);
             order.append(buf.data(),bytes);
-            if(bytes<=0)
+            if(bytes <= 0){
                 break;
+            }                
         }
         std::cout<<"Order received: "<<order<<std::endl;
         tinyxml2::XMLDocument doc;
@@ -84,7 +89,7 @@ int receive_data_from_frontend(int Connect){
 
 int Amazon_connect_frontend(int port){
     //TEST!
-    test_send_Apurchasemore();
+    //test_send_Apurchasemore();
     struct sockaddr_in serv_addr;
     int Connect;
     int Server = socket(AF_INET, SOCK_STREAM, 0);
@@ -101,6 +106,10 @@ int Amazon_connect_frontend(int port){
         Connect = accept(Server, (sockaddr*)&ClientAddr, &client_len);
         std::cout<<"Amazon: Receive order from frontend"<<std::endl;
         pool.enqueue(receive_data_from_frontend,Connect);
+        if (Connect == -1) {
+            std::cerr << "Error: cannot accept connection on socket" << std::endl;
+        return -1;
+        } //if
     }
 
 }

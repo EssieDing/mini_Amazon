@@ -27,25 +27,25 @@ int main(int argc, char *argv[]) {
 
     int world_id;
     for(;;){
-        if((world_sock=Amazon_connect_to_world(23456,world_id))==-1){
-            std::cout<<"Amazon: Failed to connect to world"<<std::endl;
-            sleep(1);
-            continue;
-        }
-        else{
-            std::cout<<"Amazon: Connected to world"<<std::endl;
-        }
-        if((ups_sock=Amazon_wait_for_UPS(5688,world_id))==-1){
-            std::cout<<"Amazon: Failed to connect to UPS"<<std::endl;
-            sleep(1);
-            continue;
-        }
-        else{
-            std::cout<<"Amazon: Connected to UPS"<<std::endl;
-        }
+        // if((world_sock=Amazon_connect_to_world(23456,world_id))==-1){
+        //     std::cout<<"Amazon: Failed to connect to world"<<std::endl;
+        //     sleep(1);
+        //     continue;
+        // }
+        // else{
+        //     std::cout<<"Amazon: Connected to world"<<std::endl;
+        // }
+        // if((ups_sock=Amazon_wait_for_UPS(5688,world_id))==-1){
+        //     std::cout<<"Amazon: Failed to connect to UPS"<<std::endl;
+        //     sleep(1);
+        //     continue;
+        // }
+        // else{
+        //     std::cout<<"Amazon: Connected to UPS"<<std::endl;
+        // }
 
-        pool.enqueue(WorldHandler());
-        pool.enqueue(UPSHandler());
+        //pool.enqueue(WorldHandler());
+        //pool.enqueue(UPSHandler());
         pool.enqueue(FrontendHandler());
         // while (true)
         // {

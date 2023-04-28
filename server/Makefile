@@ -4,10 +4,10 @@ EXTRAFLAGS=-lpqxx -lpq -lpthread
 GOOGLE_BUFFER= `pkg-config --cflags --libs protobuf`
 PROTO= protobuf/amazon_ups.pb.cc protobuf/world_amazon.pb.cc 
 CXXFLAGS = -std=c++11 -O2 -g -mcmodel=large
-SERVER= common.cpp server.cpp
+SERVER= common.cpp server.cpp frontend_handle.hpp
 AUX = tinyxml2.cpp
 
-server: server.cpp common.cpp
+server: server.cpp common.cpp frontend_handle.hpp
 	$(CC) $(CXXFLAGS) -o $@ $(SERVER) $(PROTO) $(AUX) $(GOOGLE_BUFFER) $(EXTRAFLAGS)
 
 
