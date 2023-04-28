@@ -21,8 +21,10 @@ int Send_command_to_UPS(AUCommands &aucommands,int seq_num=-1){
     
     while(true){
         // whether continue looping
-        if(seq_num!=-1 && send_acks[seq_num]==true){
-            break;
+        if(send_acks[seq_num]==true){
+            if(seq_num!=-1){
+                break;
+            }
         }
         try{
             //send to ups

@@ -85,23 +85,23 @@ int receive_data_from_frontend(int Connect){
 int Amazon_connect_frontend(int port){
     //TEST!
     test_send_Apurchasemore();
-    struct sockaddr_in serv_addr;
-    int Connect;
-    int Server = socket(AF_INET, SOCK_STREAM, 0);
-    sockaddr_in ServerAddr;
-    ServerAddr.sin_family = AF_INET;
-    ServerAddr.sin_port = htons(port);
-    ServerAddr.sin_addr.s_addr = INADDR_ANY;
-    bind(Server, (sockaddr*)&ServerAddr, sizeof(ServerAddr));
-    listen(Server, SOMAXCONN);
+    // struct sockaddr_in serv_addr;
+    // int Connect;
+    // int Server = socket(AF_INET, SOCK_STREAM, 0);
+    // sockaddr_in ServerAddr;
+    // ServerAddr.sin_family = AF_INET;
+    // ServerAddr.sin_port = htons(port);
+    // ServerAddr.sin_addr.s_addr = INADDR_ANY;
+    // bind(Server, (sockaddr*)&ServerAddr, sizeof(ServerAddr));
+    // listen(Server, SOMAXCONN);
 
-    while(true){
-        sockaddr_in ClientAddr;
-        socklen_t client_len = sizeof(ClientAddr);
-        Connect = accept(Server, (sockaddr*)&ClientAddr, &client_len);
-        std::cout<<"Amazon: Receive order from frontend"<<std::endl;
-        pool.enqueue(receive_data_from_frontend,Connect);
-    }
+    // while(true){
+    //     sockaddr_in ClientAddr;
+    //     socklen_t client_len = sizeof(ClientAddr);
+    //     Connect = accept(Server, (sockaddr*)&ClientAddr, &client_len);
+    //     std::cout<<"Amazon: Receive order from frontend"<<std::endl;
+    //     pool.enqueue(receive_data_from_frontend,Connect);
+    // }
 
 }
 

@@ -13,17 +13,10 @@
 
 
 int main(int argc, char *argv[]) {
-    
-    // pqxx::connection *C;
-    // C = new pqxx::connection("dbname=trades user=postgres password=passw0rd host=db port=5432");
-    // C = new pqxx::connection("dbname=trades user=postgres password=passw0rd");
-    // DropTable(C);
-    // CreateTable("./CreateTable.txt",C);
-    // std::string execution = "set transaction isolation level repeatable read;";
-    // ExecuteCommand(execution,C);
-    // freopen("server_result.txt", "w", stdout); 
 
-    //try link to the world locally
+    Init_warehouse();
+    memset(&send_acks,0,sizeof(send_acks));
+    memset(&recv_acks,0,sizeof(recv_acks));
 
     int world_id;
     for(;;){
@@ -34,27 +27,27 @@ int main(int argc, char *argv[]) {
         }
         else{
             std::cout<<"Amazon: Connected to world"<<std::endl;
+            break;
         }
-        if((ups_sock=Amazon_wait_for_UPS(5688,world_id))==-1){
-            std::cout<<"Amazon: Failed to connect to UPS"<<std::endl;
-            sleep(1);
-            continue;
-        }
-        else{
-            std::cout<<"Amazon: Connected to UPS"<<std::endl;
-        }
-
-        pool.enqueue(WorldHandler());
-        pool.enqueue(UPSHandler());
-        pool.enqueue(FrontendHandler());
-        // while (true)
-        // {
+        // if((ups_sock=Amazon_wait_for_UPS(5688,world_id))==-1){
+        //     std::cout<<"Amazon: Failed to connect to UPS"<<std::endl;
         //     sleep(1);
+        //     continue;
+        // }
+        // else{
+        //     std::cout<<"Amazon: Connected to UPS"<<std::endl;
         // }
         
 
     }
-
+    pool.enqueue(WorldHandler());
+    // pool.enqueue(UPSHandler());
+   // pool.enqueue(FrontendHandler());
+    pool.enqueue([](){
+        for(;;){
+            test_send_Apurchasemore();
+        }
+    });
     return 0;
 }
 

@@ -24,9 +24,9 @@
 #include "world_handle.hpp"
 #include "UPS_handle.hpp"
 #include "frontend_handle.hpp"
+#include "test_backend.hpp"
 
-
-std::vector<Warehouse> Init_warehouse(){
+void Init_warehouse(){
     w_list.push_back(Warehouse(1,1,1));
     w_list.push_back(Warehouse(2,2,2));
     w_list.push_back(Warehouse(3,3,3));
