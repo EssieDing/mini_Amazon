@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.urls import reverse
 from amazon.models import Product
 
 
@@ -47,10 +48,6 @@ class Order(models.Model):
     # for ups connection
     ups_id = models.IntegerField(default=1)
 
-    #return the total price for current order
-    def total(self):
-        return self.product_cnt * self.product.price
-
     # def __str__(self):
     #     return "<" + str(self.id) + ', ' + str(self.product_cnt) + ">"
     
@@ -65,3 +62,4 @@ class OrderItem(models.Model):
 
     def get_cost(self):
         return self.price * self.quantity
+    

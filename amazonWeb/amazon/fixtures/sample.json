@@ -29,6 +29,7 @@
       "fields": {
         "id": "1",
         "category": "1",
+        "name":"green tea",
         "slug":"green_tea",
         "image":"/static/image/green tea.jpeg",
         "description": "green tea",
@@ -41,6 +42,7 @@
       "fields": {
         "id": "2",
         "category": "1",
+        "name":"black tea",
         "slug":"black_tea",
         "image":"/static/image/black tea.jpeg",
         "description": "black tea",
@@ -53,6 +55,7 @@
       "fields": {
         "id": "3",
         "category": "1",
+        "name":"milk tea",
         "slug":"milk_tea",
         "image":"/static/image/pearl milk tea.jpeg",
         "description": "milk tea",
@@ -65,6 +68,7 @@
       "fields": {
         "id": "4",
         "category": "1",
+        "name":"lemon tea",
         "slug":"lemon_tea",
         "image":"/static/image/lemon tea.jpeg",
         "description": "lemon tea",
@@ -77,6 +81,7 @@
       "fields": {
         "id": "5",
         "category": "1",
+        "name":"matcha",
         "slug":"matcha",
         "image":"/static/image/matcha tea.jpeg",
         "description": "matcha tea",
@@ -89,6 +94,7 @@
       "fields": {
         "id": "6",
         "category": "2",
+        "name":"cappuccino",
         "slug":"cappuccino",
         "image":"/static/image/cappuccino.jpeg",
         "description": "Cappuccino",
@@ -101,6 +107,7 @@
       "fields": {
         "id": "7",
         "category": "2",
+        "name":"flat white",
         "slug":"flat_white",
         "image":"/static/image/flat white.jpeg",
         "description": "Flat white",
@@ -113,6 +120,7 @@
       "fields": {
         "id": "8",
         "category": "2",
+        "name":"latte",
         "slug":"latte",
         "image":"/static/image/latte.jpeg",
         "description": "Latte",
@@ -125,6 +133,7 @@
       "fields": {
         "id": "9",
         "category": "2",
+        "name":"mocha",
         "slug":"mocha",
         "image":"/static/image/mocha.jpeg",
         "description": "Mocha",
@@ -137,8 +146,9 @@
       "fields": {
         "id": "10",
         "category": "3",
+        "name":"sandwich bread",
         "slug":"sandwich",
-        "image":"/static/image/sandwich bread.jpeg",
+        "image":"static/image/sandwich bread.jpeg",
         "description": "Sandwich bread",
         "price": "3"
       }
@@ -149,6 +159,7 @@
       "fields": {
         "id": "11",
         "category": "3",
+        "name":"five grain bread",
         "slug":"five_grain",
         "image":"/static/image/five grain bread.jpeg",
         "description": "Five grain bread",
@@ -161,6 +172,7 @@
       "fields": {
         "id": "12",
         "category": "3",
+        "name":"whole grain bread",
         "slug":"whole_grain",
         "image":"/static/image/whole grain bread.jpeg",
         "description": "Whole grain bread",

@@ -35,6 +35,9 @@ def order_create(request):
                 item_id.append(item['product'].id)
                 item_descriptions.append(item['product'].description)
                 item_quantity.append(item['quantity'])
+                order.price += item['price']
+                order.save()
+            
             sendOrder(order, item_id, item_descriptions, item_quantity)    
             # clear the cart
             cart.clear()
@@ -53,8 +56,30 @@ def order_create(request):
 @login_required
 def viewOrder(request):
     order_list = Order.objects.filter(owner=request.user)
+    id_list = []
+    name_list =[]
+    price_list =[]
+    
+    for order in order_list:
+        item_list = OrderItem.objects.filter(order = order)
+        item_id = ""
+        item_name = ""
+        item_price = 0
+        for item in item_list:
+            item_id += str(item.id)
+            item_name += item.product.name
+            item_price += item.price
+        id_list.append(item_id)
+        name_list.append(item_name)
+        price_list.append(item_price)
+        
+    
+        
     context = {
         'order_list':order_list,
+        'id_list':id_list,
+        'name_list':name_list,
+        'price_list':price_list,
     }
     return render(request, 'order/orders.html', context)
 
