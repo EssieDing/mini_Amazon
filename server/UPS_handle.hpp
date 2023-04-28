@@ -18,11 +18,12 @@
 
 //--------------------send message to ups--------------------
 int Send_command_to_UPS(AUCommands aucommands,int seq_num=-1){
-    
+    std::cout<<"Get into Send_command_to_UPS"<<std::endl;
     while(true){
         // whether continue looping
         if(seq_num!=-1 && send_acks[seq_num]==true){
             if(seq_num!=-1){
+                std::cout<<"Received ack, stop sending seq_num:" << seq_num<<std::endl;
                 break;
             }
         }
@@ -36,6 +37,7 @@ int Send_command_to_UPS(AUCommands aucommands,int seq_num=-1){
             std::cout<<"Amazon: send command to ups failed"<<std::endl;
             return -1;
         }
+        std::cout<<"Amazon: send command to ups seq_num="<<seq_num<<std::endl;
         // seq_num==-1 means send ack back, no need to wait for ack
         if(seq_num==-1) break;
 
@@ -45,12 +47,14 @@ int Send_command_to_UPS(AUCommands aucommands,int seq_num=-1){
     return 0;
 }
 
-int Send_AUInitPickUP_to_UPS(int wh_id,std::string accountname,AUDeliveryLocation* location, google::protobuf::RepeatedPtrField<AProduct> product){
+int Send_AUInitPickUP_to_UPS(int wh_id,std::string accountname,AUDeliveryLocation location, google::protobuf::RepeatedPtrField<AProduct> product){
 
     AUInitPickUp auinitpickup;
     auinitpickup.set_whid(wh_id);
     auinitpickup.set_accountname(accountname);
-    auinitpickup.set_allocated_deliverylocation(location);
+    AUDeliveryLocation *copy_location = new AUDeliveryLocation();
+    copy_location->CopyFrom(location);
+    auinitpickup.set_allocated_deliverylocation(copy_location);
     for(auto &p:product){
         auto aproduct = auinitpickup.add_product();
         aproduct->set_id(p.id());

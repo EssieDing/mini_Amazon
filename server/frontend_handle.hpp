@@ -38,7 +38,7 @@ int Process_order(tinyxml2::XMLDocument& doc ){
         AProduct aproduct;
         aproduct.set_id(std::stoll(product->FirstChildElement("id")->GetText()));
         aproduct.set_description(product->FirstChildElement("description")->GetText());
-        aproduct.set_count(std::stoi(product->FirstChildElement("count")->GetText()));
+        aproduct.set_count(std::stoi(product->FirstChildElement("quantity")->GetText()));
         products.push_back(aproduct);
         product=product->NextSiblingElement();
     }
@@ -49,6 +49,15 @@ int Process_order(tinyxml2::XMLDocument& doc ){
     // send_ApurchaseMore_to_world
     int warehouse_id = select_warehouse(addr_x,addr_y);
     std::cout<<"Amazon: send order to world in Process_order"<<std::endl;
+    //print order
+    std::cout<<"Order id: "<<order_id<<std::endl;
+    std::cout<<"Account name: "<<accountname<<std::endl;
+    std::cout<<"Address: "<<addr_x<<" "<<addr_y<<std::endl;
+    std::cout<<"Warehouse id: "<<warehouse_id<<std::endl;
+    std::cout<<"Products: "<<std::endl;
+    for(auto &p:products){
+        std::cout<<"id: "<<p.id()<<" description: "<<p.description()<<" count: "<<p.count()<<std::endl;
+    }
     send_ApurchaseMore_to_world(warehouse_id,products,order_id,accountname,addr_x,addr_y);
     return 0;   
 }
@@ -84,7 +93,10 @@ int receive_data_from_frontend(int Connect){
 
 int FrontendHandler(int port){
     //TEST!
-    test_send_Apurchasemore();
+    //test_send_Apurchasemore();
+    test_send_AUInitPickUP_to_UPS();
+    
+    
     struct sockaddr_in serv_addr;
     int Connect;
     int Server = socket(AF_INET, SOCK_STREAM, 0);

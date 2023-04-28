@@ -177,11 +177,6 @@ int Process_Arrived(APurchaseMore now_arrived){
         send_acks_to_world(now_arrived.seqnum());
     }
     recv_acks[now_arrived.seqnum()]=true;
-    auto it = seqnum_to_orderinfo.find(now_arrived.seqnum());
-    if(it==seqnum_to_orderinfo.end()){
-        std::cout<<"Amazon: seqnum_to_orderinfo not found"<<std::endl;
-       // return -1;
-    }
 
     std::lock_guard<std::mutex> lock(purchase_mutex);
     //iterate through the purchase map
@@ -205,20 +200,24 @@ int Process_Arrived(APurchaseMore now_arrived){
                 std::cout<<"Amazon: find order info according to original seqnum: "<<p.seqnum()<<std::endl;
                 OrderInfo &now_orderinfo=it->second;
                 send_APack_to_world(now_arrived.whnum(),now_arrived.things(),now_orderinfo.package_id);
+
+                // //TO-DO： update order status to be packing
+    // Update_Order_Status(now_orderinfo.package_id,"packing");
+                AUDeliveryLocation audeliverylocation;
+                audeliverylocation.set_x(now_orderinfo.delivery_x);
+                audeliverylocation.set_y(now_orderinfo.delivery_y);
+                audeliverylocation.set_packageid(now_orderinfo.package_id);
+                Send_AUInitPickUP_to_UPS(now_arrived.whnum(),now_orderinfo.account_name,\
+                    audeliverylocation,now_arrived.things());
             }
         }
     }
 
     // OrderInfo &now_orderinfo=it->second;
     // send_APack_to_world(now_arrived.whnum(),now_arrived.things(),now_orderinfo.package_id);
-    // //TO-DO： update order status to be packing
-    // Update_Order_Status(now_orderinfo.package_id,"packing");
 
-    // AUDeliveryLocation audeliverylocation;
-    // audeliverylocation.set_x(now_orderinfo.delivery_x);
-    // audeliverylocation.set_y(now_orderinfo.delivery_y);
-    // Send_AUInitPickUP_to_UPS(now_orderinfo.package_id,now_orderinfo.account_name,\
-    //     &audeliverylocation,now_arrived.things());
+
+
 
     
     send_acks_to_world(now_arrived.seqnum());
@@ -233,14 +232,14 @@ int Process_APacked(APacked now_packed){
     }
     recv_acks[now_packed.seqnum()]=true;
     // Update_Order_Status(now_packed.shipid(),"packed");
-    // while(shipid_to_truckid.find(now_packed.shipid())==shipid_to_truckid.end()){
-    //     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    //     std::cout<<"Amazon: wait for UATruckArrived"<<std::endl;
-    // }
+    while(shipid_to_truckid.find(now_packed.shipid())==shipid_to_truckid.end()){
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::cout<<"Amazon: wait for UATruckArrived"<<std::endl;
+    }
     // Update_Order_Status(now_packed.shipid(),"loading");
-    //send_APutOnTruck_to_world(shipid_to_whid[now_packed.shipid()],shipid_to_truckid[now_packed.shipid()],now_packed.shipid());
+    send_APutOnTruck_to_world(shipid_to_whid[now_packed.shipid()],shipid_to_truckid[now_packed.shipid()],now_packed.shipid());
    
-    send_APutOnTruck_to_world(1,1,1);
+    // send_APutOnTruck_to_world(1,1,1);
    
     send_acks_to_world(now_packed.seqnum());
     return 0;
@@ -297,7 +296,7 @@ int Process_Aresponse(AResponses aresponses){
 
 int receive_Aresponse_from_world(){
     // std::cout<<"world sock in receiving "<<world_sock<<std::endl;
-    std::cout<<"world receiver running"<<std::endl; 
+   // std::cout<<"world receiver running"<<std::endl; 
     AResponses aresponses;
     try{ 
        // std::lock_guard<std::mutex> lock(world_sock_mutex);

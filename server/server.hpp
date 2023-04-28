@@ -95,7 +95,7 @@ int Amazon_connect_to_world(int port,int& world_id){
     return sock;
 }
 
-int Amazon_wait_for_UPS(int port,int& world_id){
+int Amazon_wait_for_UPS(int port,int& world_id){\
     struct sockaddr_in serv_addr;
     int Connect;
     int Server = socket(AF_INET, SOCK_STREAM, 0);

@@ -27,16 +27,16 @@ int main(int argc, char *argv[]) {
         }
         else{
             std::cout<<"Amazon: Connected to world"<<std::endl;
+        }
+        if((ups_sock=Amazon_wait_for_UPS(5688,world_id))==-1){
+            std::cout<<"Amazon: Failed to connect to UPS"<<std::endl;
+            sleep(1);
+            continue;
+        }
+        else{
+            std::cout<<"Amazon: Connected to UPS"<<std::endl;
             break;
         }
-        // if((ups_sock=Amazon_wait_for_UPS(5688,world_id))==-1){
-        //     std::cout<<"Amazon: Failed to connect to UPS"<<std::endl;
-        //     sleep(1);
-        //     continue;
-        // }
-        // else{
-        //     std::cout<<"Amazon: Connected to UPS"<<std::endl;
-        // }
         
 
     }
@@ -51,10 +51,10 @@ int main(int argc, char *argv[]) {
     // );
     std::thread t1(WorldHandler);
     std::thread t2(FrontendHandler,front_end_port);
-    // std::thread t3(UPSHandle);
+    std::thread t3(UPSHandle);
     t1.join();
     t2.join();
-    //t3.join();
+    t3.join();
 
     // executor.run(taskflow).wait(); 
     for (;;) {
