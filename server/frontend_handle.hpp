@@ -49,7 +49,6 @@ int Process_order(tinyxml2::XMLDocument& doc ){
     std::cout<< products[0].GetDescriptor << order_id << accountname << addr_x << " "<< addr_y << std::endl;
     // send_ApurchaseMore_to_world
     int warehouse_id = select_warehouse(addr_x,addr_y);
-<<<<<<< HEAD
     // std::cout<<"Amazon: send order to world in Process_order"<<std::endl;
     // //print order
     // std::cout<<"Order id: "<<order_id<<std::endl;
@@ -61,10 +60,6 @@ int Process_order(tinyxml2::XMLDocument& doc ){
     //     std::cout<<"id: "<<p.id()<<" description: "<<p.description()<<" count: "<<p.count()<<std::endl;
     // }
     send_ApurchaseMore_to_world(warehouse_id,products,order_id,accountname,addr_x,addr_y);
-=======
-    std::cout<<"Amazon: send order to world in Process_order"<<std::endl;
-    //send_ApurchaseMore_to_world(warehouse_id,products,order_id,accountname,addr_x,addr_y);
->>>>>>> 7700c18a4b07750c159e258fbecc3311f3dedfe4
     return 0;   
 }
 
