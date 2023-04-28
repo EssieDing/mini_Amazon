@@ -40,14 +40,26 @@ int main(int argc, char *argv[]) {
         
 
     }
-    pool.enqueue(WorldHandler());
+//    taskflow.emplace(WorldHandler());
+//    taskflow.emplace([=](){Amazon_connect_frontend(front_end_port);});
     // pool.enqueue(UPSHandler());
-   // pool.enqueue(FrontendHandler());
-    pool.enqueue([](){
-        for(;;){
-            test_send_Apurchasemore();
-        }
-    });
+  // pool.enqueue(FrontendHandler());
+    // taskflow.emplace([](){
+
+    //         test_send_Apurchasemore();
+    //     }
+    // );
+    std::thread t1(WorldHandler);
+    std::thread t2(FrontendHandler,front_end_port);
+    // std::thread t3(UPSHandle);
+    t1.join();
+    t2.join();
+    //t3.join();
+
+    // executor.run(taskflow).wait(); 
+    for (;;) {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
     return 0;
 }
 

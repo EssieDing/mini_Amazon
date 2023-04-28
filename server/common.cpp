@@ -4,6 +4,9 @@ long long server_seq_num = 0;
 std::mutex server_seq_num_mutex;
 ThreadPool pool(200);
 
+tf::Executor executor;
+tf::Taskflow taskflow;
+
 const char *world_ip = "";
 const char *ups_ip = "";
 const char *front_end_ip = "127.0.0.1";

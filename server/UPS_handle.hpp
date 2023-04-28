@@ -128,6 +128,7 @@ int Process_UACommands(UACommands &uacommands){
 
 
 int receive_UACommands_from_UPS(){
+    std::cout<<"UPS receiver running"<<std::endl;
     UACommands uacommands;
     try{
         //receive from ups
@@ -139,19 +140,18 @@ int receive_UACommands_from_UPS(){
         std::cout<<"Amazon: receive command from ups failed"<<std::endl;
         return -1;
     }
+    std::cout<<"receive_UACommands_from_UPS"<<std::endl;
+    Process_UACommands(std::move(uacommands));
     return 0;
 }
 
 
-class UPSHandler {
-public:
-    UPSHandler() {}
-    void operator() (){
-        while(true){
-            receive_UACommands_from_UPS();
-        }
+void UPSHandle(){
+    while(true){
+        receive_UACommands_from_UPS();
     }
-};
+}
+
 
 
 

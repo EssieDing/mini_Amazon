@@ -13,10 +13,14 @@
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include "db_func.hpp"
+#include "taskflow/taskflow.hpp"
 
 extern long long server_seq_num;
 extern std::mutex server_seq_num_mutex;
 extern ThreadPool pool;
+
+extern tf::Executor executor;
+extern tf::Taskflow taskflow;
 
 extern const char *world_ip;
 extern const char *ups_ip;

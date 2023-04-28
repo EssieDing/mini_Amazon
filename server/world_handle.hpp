@@ -28,26 +28,29 @@ int Send_command_to_world(ACommands acommands,int seq_num){
     std::cout<<"Get into send command to world"<<std::endl;
     while(true){
         // whether continue looping
-        if(send_acks[seq_num]==true){
+        if(seq_num!=-1 && send_acks[seq_num]==true){
+
             if(seq_num!=-1){
+                std::cout<<"Received ack, stop sending seq_num:" << seq_num<<std::endl;
                 break;
             }
         }
-        std::cout<<"pass check"<<std::endl;
+        //std::cout<<"pass check"<<std::endl;
         //print ApurchaseMore in acommands
-        for(auto &apurchasemore:acommands.buy()){
-            std::cout<<"apurchasemore in sending: "<<std::endl;
-            std::cout<<"whnum: "<<apurchasemore.whnum()<<std::endl;
-            for(auto &p:apurchasemore.things()){
-                std::cout<<"product: "<<std::endl;
-                std::cout<<"id: "<<p.id()<<std::endl;
-                std::cout<<"description: "<<p.description()<<std::endl;
-                std::cout<<"count: "<<p.count()<<std::endl;
-            }
-        }
-        std::cout<<"seq num in sending: "<<seq_num<<std::endl;
+        // for(auto &apurchasemore:acommands.buy()){
+        //     std::cout<<"apurchasemore in sending: "<<std::endl;
+        //     std::cout<<"whnum: "<<apurchasemore.whnum()<<std::endl;
+        //     for(auto &p:apurchasemore.things()){
+        //         std::cout<<"product: "<<std::endl;
+        //         std::cout<<"id: "<<p.id()<<std::endl;
+        //         std::cout<<"description: "<<p.description()<<std::endl;
+        //         std::cout<<"count: "<<p.count()<<std::endl;
+        //     }
+        // }
+       // std::cout<<"seq num in sending: "<<seq_num<<std::endl;
 
         try{
+         //   std::lock_guard<std::mutex> lock(world_sock_mutex);
             //send to world
             std::cout<<"prepare sending"<<std::endl;
             std::unique_ptr<GPBFileOutputStream> output(new GPBFileOutputStream(world_sock));
@@ -63,7 +66,7 @@ int Send_command_to_world(ACommands acommands,int seq_num){
         // seq_num==-1 means send ack back, no need to wait for ack
         if(seq_num==-1) break;
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::seconds(5));
     }       
     
 
@@ -90,8 +93,13 @@ int send_ApurchaseMore_to_world(int wh_id,std::vector<AProduct> &products,\
     std::cout<<"Amazon: send APurchaseMore to world shipid: "<<packageid<<" seq_num: "<<seq_num<<std::endl;
     std::cout << "Before enqueueing Send_command_to_world" << std::endl;
     std::cout<<"world sock in sending "<<world_sock<<std::endl;
-    pool.enqueue(Send_command_to_world,acommands,seq_num);
+    //pool.enqueue(Send_command_to_world,acommands,seq_num);
     //Send_command_to_world(acommands,seq_num);
+   // taskflow.emplace([=]() { Send_command_to_world(std::move(acommands),seq_num); });
+    //executor.run(taskflow).wait(); 
+        // Create a new taskflow and add the task to it
+    std::thread sending_thread(Send_command_to_world,acommands,seq_num);
+    sending_thread.detach(); 
     std::cout << "After enqueuing Send_command_to_world" << std::endl;
     return 0;
 }
@@ -138,7 +146,9 @@ int send_acks_to_world(int ack){
     ACommands acommands;
     acommands.add_acks(ack);
     std::cout<<"Amazon: send received ack to world: "<<ack<<std::endl;
-    pool.enqueue(Send_command_to_world,acommands,-1);
+    // pool.enqueue(Send_command_to_world,acommands,-1);
+    std::thread sending_thread(Send_command_to_world,acommands,-1);
+    sending_thread.detach();
     return 0;
 }
 
@@ -162,7 +172,7 @@ int Process_Arrived(APurchaseMore now_arrived){
     auto it = seqnum_to_orderinfo.find(now_arrived.seqnum());
     if(it==seqnum_to_orderinfo.end()){
         std::cout<<"Amazon: seqnum_to_orderinfo not found"<<std::endl;
-        return -1;
+       // return -1;
     }
     // OrderInfo &now_orderinfo=it->second;
     // send_APack_to_world(now_arrived.whnum(),now_arrived.things(),now_orderinfo.package_id);
@@ -198,13 +208,14 @@ int Process_APacked(APacked now_packed){
     return 0;
 }
 
-int Process_Aresponse(AResponses &aresponses){
+int Process_Aresponse(AResponses aresponses){
     //Parchase more arrived received
     //Amazon: No.8 send Apack to world
     //DB: update order status to be packing
     //Amazon: No.8 send AUInitPickUp to UPS
     for(auto &now_arrived:aresponses.arrived()){
-        pool.enqueue(Process_Arrived,now_arrived);
+        // pool.enqueue(Process_Arrived,now_arrived);
+        Process_Arrived(now_arrived);
     }
     //Apacked ready received
     //check whether UATruckArrived received
@@ -212,8 +223,9 @@ int Process_Aresponse(AResponses &aresponses){
     //else wait for UATruckArrived
     //DB: update order status to be packed
     for(auto &now_packed:aresponses.ready()){
-        pool.enqueue(Process_APacked,now_packed);
-
+        // pool.enqueue(Process_APacked,now_packed);
+        std::thread processing_thread(Process_APacked,now_packed);
+        processing_thread.detach();
     }
 
     //ALoaded loaded received
@@ -239,17 +251,18 @@ int Process_Aresponse(AResponses &aresponses){
     //acks received from world
     //update bitset
     for(auto &now_ack:aresponses.acks()){
+        std::cout<<"Amazon: receive ack from world: "<<now_ack<<std::endl;
         send_acks[now_ack]=true;
     }
     return 0;
 }
 
 int receive_Aresponse_from_world(){
-    std::cout<<"world sock in receiving "<<world_sock<<std::endl;
+    // std::cout<<"world sock in receiving "<<world_sock<<std::endl;
     std::cout<<"world receiver running"<<std::endl; 
     AResponses aresponses;
     try{ 
-        //std::lock_guard<std::mutex> lock(world_sock_mutex);
+       // std::lock_guard<std::mutex> lock(world_sock_mutex);
         std::unique_ptr<GPBFileInputStream> input(new GPBFileInputStream(world_sock));
         if(recvMesgFrom(aresponses,input.get())!=true){
             throw std::runtime_error("receive Aresponse from world failed");
@@ -259,26 +272,34 @@ int receive_Aresponse_from_world(){
         return -1;
     }
     std::cout<<"Amazon: receive Aresponse from world"<<std::endl;
-    if(Process_Aresponse(aresponses)!=0){
-        std::cout<<"Amazon: process Aresponse failed"<<std::endl;
-        return -1;
-    }
+    // if(Process_Aresponse(aresponses)!=0){
+    //     std::cout<<"Amazon: process Aresponse failed"<<std::endl;
+    //     return -1;
+    // }
+    // tf::Taskflow newtaskflow;
+    // newtaskflow.emplace([=](){Process_Aresponse(std::move(aresponses));});
+    // executor.run(newtaskflow).wait();
+    Process_Aresponse(std::move(aresponses));
     return 0;
 }
-
-class WorldHandler {
-public:
-    WorldHandler() {}
-    void operator()() {
+    void WorldHandler() {
         while(true){
             receive_Aresponse_from_world();
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            // std::this_thread::sleep_for(std::chrono::milliseconds(100));
             
         }
-    }    
-};
-
-
+    }
+// class WorldHandler {
+// public:
+//     WorldHandler() {}
+//     void operator()() {
+//         while(true){
+//             receive_Aresponse_from_world();
+//             std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            
+//         }
+//     }    
+// };
 
 
 #endif
