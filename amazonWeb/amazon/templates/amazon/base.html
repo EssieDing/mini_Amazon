@@ -27,7 +27,7 @@
                 ${{ cart.get_total_price }}
               </a>
             {% else %}
-              Your cart is empty.
+              Empty Cart
             {% endif %}
           {% endwith %}
       </div></li>
@@ -35,8 +35,10 @@
 
     {% else %}
     <div class = "users">
-      <a href="{% url 'users:login' %}">Log in</a>
-      <a href="{% url 'users:register' %}">Register</a>
+      <ul>
+      <li><a href="{% url 'users:login' %}">Log in</a><li>
+      <li><a href="{% url 'users:register' %}">Register</a><li>
+      </ul>
     </div>
     {% endif %}
 

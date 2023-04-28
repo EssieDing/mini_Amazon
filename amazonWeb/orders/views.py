@@ -18,6 +18,8 @@ def order_create(request):
             form.instance.owner = request.user
             order = form.save()
             for item in cart:
+                print(item['product'])
+                print(item['quantity'])
                 # Order.objects.create(owner = request.user,
                 #                      addr_x = form.cleaned_data.get('addr_x'),
                 #                      addr_y = form.cleaned_data.get('addr_y'), 
@@ -70,7 +72,6 @@ def sendOrder(order, item_id, item_descriptions, item_quantity):
     for id, description, quantity in zip(item_id, item_descriptions, item_quantity):
         item_node = ET.SubElement(items, 'item')
         item_node.attrib={"id": str(id)}
-        items.append(item_node)
         id_node = ET.SubElement(item_node, 'id')
         id_node.text = str(id)
         description_node = ET.SubElement(item_node, 'description')
@@ -99,6 +100,6 @@ def sendOrder(order, item_id, item_descriptions, item_quantity):
             print('connect to server success!')
             s.sendall(xml_str)
         except socket.error:
-            print ("Couldnt connect with server or send xml")
+            print ("Couldn't connect with server or send xml")
 
 
