@@ -46,8 +46,10 @@ int Process_order(tinyxml2::XMLDocument& doc ){
     long long order_id=std::stoll(doc.RootElement()->FirstChildElement("order_id")->GetText());
     int addr_x=std::stoi(doc.RootElement()->FirstChildElement("addr_x")->GetText());
     int addr_y=std::stoi(doc.RootElement()->FirstChildElement("addr_y")->GetText());
+    std::cout<< products[0].GetDescriptor << order_id << accountname << addr_x << " "<< addr_y << std::endl;
     // send_ApurchaseMore_to_world
     int warehouse_id = select_warehouse(addr_x,addr_y);
+<<<<<<< HEAD
     // std::cout<<"Amazon: send order to world in Process_order"<<std::endl;
     // //print order
     // std::cout<<"Order id: "<<order_id<<std::endl;
@@ -59,23 +61,31 @@ int Process_order(tinyxml2::XMLDocument& doc ){
     //     std::cout<<"id: "<<p.id()<<" description: "<<p.description()<<" count: "<<p.count()<<std::endl;
     // }
     send_ApurchaseMore_to_world(warehouse_id,products,order_id,accountname,addr_x,addr_y);
+=======
+    std::cout<<"Amazon: send order to world in Process_order"<<std::endl;
+    //send_ApurchaseMore_to_world(warehouse_id,products,order_id,accountname,addr_x,addr_y);
+>>>>>>> 7700c18a4b07750c159e258fbecc3311f3dedfe4
     return 0;   
 }
 
 
 int receive_data_from_frontend(int Connect){
     try{
+        std::cout << "start to receive data from frontend" << std::endl;
         std::vector<char> buf(10000);
         int bytes = recv(Connect, buf.data(), buf.size(), 0);
-    
+        if(bytes <= 0){
+            return 0;
+        }       
         //read request length
         std::string order(buf.data(), bytes);
         while(true){
             std::vector<char> buf(10000);
             int bytes = recv(Connect, buf.data(), buf.size(), 0);
             order.append(buf.data(),bytes);
-            if(bytes<=0)
+            if(bytes <= 0){
                 break;
+            }                
         }
         std::cout<<"Order received: "<<order<<std::endl;
         tinyxml2::XMLDocument doc;
