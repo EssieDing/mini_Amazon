@@ -48,16 +48,16 @@ int Process_order(tinyxml2::XMLDocument& doc ){
     int addr_y=std::stoi(doc.RootElement()->FirstChildElement("addr_y")->GetText());
     // send_ApurchaseMore_to_world
     int warehouse_id = select_warehouse(addr_x,addr_y);
-    std::cout<<"Amazon: send order to world in Process_order"<<std::endl;
-    //print order
-    std::cout<<"Order id: "<<order_id<<std::endl;
-    std::cout<<"Account name: "<<accountname<<std::endl;
-    std::cout<<"Address: "<<addr_x<<" "<<addr_y<<std::endl;
-    std::cout<<"Warehouse id: "<<warehouse_id<<std::endl;
-    std::cout<<"Products: "<<std::endl;
-    for(auto &p:products){
-        std::cout<<"id: "<<p.id()<<" description: "<<p.description()<<" count: "<<p.count()<<std::endl;
-    }
+    // std::cout<<"Amazon: send order to world in Process_order"<<std::endl;
+    // //print order
+    // std::cout<<"Order id: "<<order_id<<std::endl;
+    // std::cout<<"Account name: "<<accountname<<std::endl;
+    // std::cout<<"Address: "<<addr_x<<" "<<addr_y<<std::endl;
+    // std::cout<<"Warehouse id: "<<warehouse_id<<std::endl;
+    // std::cout<<"Products: "<<std::endl;
+    // for(auto &p:products){
+    //     std::cout<<"id: "<<p.id()<<" description: "<<p.description()<<" count: "<<p.count()<<std::endl;
+    // }
     send_ApurchaseMore_to_world(warehouse_id,products,order_id,accountname,addr_x,addr_y);
     return 0;   
 }
@@ -92,8 +92,8 @@ int receive_data_from_frontend(int Connect){
 }
 
 int FrontendHandler(int port){
-    //TEST!
-    test_send_Apurchasemore();
+    //FORTEST
+   // test_send_Apurchasemore();
     //test_send_AUInitPickUP_to_UPS();
     
     

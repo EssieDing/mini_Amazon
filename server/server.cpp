@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
         else{
             std::cout<<"Amazon: Connected to world"<<std::endl;
         }
+        //break;
         if((ups_sock=Amazon_wait_for_UPS(5688,world_id))==-1){
             std::cout<<"Amazon: Failed to connect to UPS"<<std::endl;
             sleep(1);

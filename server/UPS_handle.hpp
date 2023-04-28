@@ -18,12 +18,12 @@
 
 //--------------------send message to ups--------------------
 int Send_command_to_UPS(AUCommands aucommands,int seq_num=-1){
-    std::cout<<"Get into Send_command_to_UPS"<<std::endl;
+   // std::cout<<"Get into Send_command_to_UPS"<<std::endl;
     while(true){
         // whether continue looping
         if(seq_num!=-1 && send_acks[seq_num]==true){
             if(seq_num!=-1){
-                std::cout<<"Received ack, stop sending seq_num:" << seq_num<<std::endl;
+                std::cout<<"Amazon: Received ack from UPS, stop sending seq_num:" << seq_num<<std::endl;
                 break;
             }
         }
@@ -37,7 +37,11 @@ int Send_command_to_UPS(AUCommands aucommands,int seq_num=-1){
             std::cout<<"Amazon: send command to ups failed"<<std::endl;
             return -1;
         }
-        std::cout<<"Amazon: send command to ups seq_num="<<seq_num<<std::endl;
+        if(seq_num!=-1)
+            std::cout<<"Amazon: send command to ups seq_num="<<seq_num<<std::endl;
+        else{
+            std::cout<<"Amazon: send ack to ups"<<std::endl;
+        }
         // seq_num==-1 means send ack back, no need to wait for ack
         if(seq_num==-1) break;
 
@@ -66,8 +70,8 @@ int Send_AUInitPickUP_to_UPS(int wh_id,std::string accountname,AUDeliveryLocatio
     send_acks[seq_num]=false;
     AUCommands aucommands;
     aucommands.add_pickupreq()->CopyFrom(auinitpickup);
-    std::cout<<"Send_AUInitPickUP_to_UPS seq_num: "<<seq_num<<std::endl;
-    std::cout<<"AUInitPickUP info: wh_id: "<<wh_id<<" accountname: "<<accountname<<std::endl;
+    std::cout<<"Amazon: Send_AUInitPickUP_to_UPS seq_num: "<<seq_num<<std::endl;
+    std::cout<<"Amazon: AUInitPickUP info: wh_id: "<<wh_id<<" accountname: "<<accountname<<std::endl;
     std::thread sending_thread(Send_command_to_UPS,aucommands,seq_num);
     sending_thread.detach();
     return 0;
@@ -81,7 +85,7 @@ int Send_AULoaded_to_UPS(int shipid){
     send_acks[seq_num]=false;
     AUCommands aucommands;
     aucommands.add_loaded()->CopyFrom(auloaded);
-    std::cout<<"Send_AULoaded_to_UPS shipid: " <<shipid<<" seq_num: "<<seq_num<<std::endl;
+    std::cout<<"Amazon: Send_AULoaded_to_UPS shipid: " <<shipid<<" seq_num: "<<seq_num<<std::endl;
     std::thread sending_thread (Send_command_to_UPS,aucommands,seq_num);
     sending_thread.detach();
     return 0;
@@ -91,7 +95,7 @@ int Send_AULoaded_to_UPS(int shipid){
 int Send_ack_to_UPS(int ack){
     AUCommands aucommands;
     aucommands.add_acks(ack);
-    std::cout<<"Send_received ack to UPS ack: "<<ack<<std::endl;
+    std::cout<<"Amazon: Send_received ack to UPS ack: "<<ack<<std::endl;
     std::thread sending_thread(Send_command_to_UPS,aucommands,-1);
     sending_thread.detach();
     return 0;
@@ -104,7 +108,7 @@ int Process_UACommands(UACommands uacommands){
     // send ack to ups
     for(auto &now_truckarrived:uacommands.truckarrived()){
         //receive the commands before
-        std::cout<<"Received truckarrived from UPS truckid: "<<now_truckarrived.truckid()<<std::endl;
+        std::cout<<"Amazon: Received truckarrived from UPS truckid: "<<now_truckarrived.truckid()<<std::endl;
 
         if(recv_acks[now_truckarrived.seqnum()]==true){
                    Send_ack_to_UPS(now_truckarrived.seqnum());
@@ -119,6 +123,7 @@ int Process_UACommands(UACommands uacommands){
     // DB: update order status
     // send ack to ups
     for(auto &now_delivered:uacommands.delivered()){
+        std::cout<<"Amazon: Received delivered from UPS packageid: "<<now_delivered.packageid()<<std::endl;
         if(recv_acks[now_delivered.seqnum()]==true){
             Send_ack_to_UPS(now_delivered.seqnum());
 
@@ -146,13 +151,13 @@ int receive_UACommands_from_UPS(){
             //receive from ups
             std::unique_ptr<GPBFileInputStream> input(new GPBFileInputStream(ups_sock));
             if(recvMesgFrom(uacommands,input.get())!=true){
-                throw std::runtime_error("receive command from ups failed");
+                throw std::runtime_error("receive command from UPS failed");
             }
         }catch(std::exception &e){
-            std::cout<<"Amazon: receive command from ups failed"<<std::endl;
+            std::cout<<"Amazon: receive command from UPS failed"<<std::endl;
             return -1;
         }
-        std::cout<<"receive_UACommands_from_UPS"<<std::endl;
+        std::cout<<"Amazon: receive UACommands from UPS"<<std::endl;
         Process_UACommands(std::move(uacommands));
     }
     return 0;

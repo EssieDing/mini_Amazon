@@ -33,14 +33,16 @@ inline pqxx::connection * connectDB() {
 }
 
 inline void Update_Order_Status(long long order_id, std::string status){
-    std::cout<<"update balance"<<std::endl;
     std::stringstream command;
     pqxx::connection *C = connectDB();
     pqxx::work W(*C);
     try {
+        command<<"SELECT * FROM orders_order WHERE id = "<<W.quote(order_id)<<" FOR UPDATE;";
+        W.exec(command.str());
+        command.str(""); // Clear the stringstream for the next command
 
         command<<"UPDATE orders_order SET status = "<< W.quote(status)
-        <<" WHERE id = "<<W.quote(order_id)<<" FOR UPDATE;";
+        <<" WHERE id = "<<W.quote(order_id)<<";";
         W.exec(command.str());
         W.commit();
     } catch (const std::exception &e) {
@@ -48,6 +50,7 @@ inline void Update_Order_Status(long long order_id, std::string status){
         W.abort();
         return;
     }
+    std::cout<<"Amazon: order "<<order_id<<" status updated to "<<status<<std::endl;
 
     if(C->is_open()){
         C->disconnect();
