@@ -9,6 +9,7 @@
 #include<exception>
 #include <utility>
 #include<bitset>
+#include<mutex>
 #include"ThreadPool.h"
 #include"GPB_message.hpp"
 #include"protobuf/world_amazon.pb.h"
@@ -19,7 +20,8 @@
 #include "UPS_handle.hpp"
 
 std::mutex world_sock_mutex;
-
+std::mutex purchase_mutex;
+std::vector<APurchaseMore> purchase_request_list;
 
 //--------------------send message to world--------------------
 
@@ -52,12 +54,12 @@ int Send_command_to_world(ACommands acommands,int seq_num){
         try{
          //   std::lock_guard<std::mutex> lock(world_sock_mutex);
             //send to world
-            std::cout<<"prepare sending"<<std::endl;
+            //std::cout<<"prepare sending"<<std::endl;
             std::unique_ptr<GPBFileOutputStream> output(new GPBFileOutputStream(world_sock));
             if(sendMesgTo(acommands,output.get())!=true){
                 throw std::runtime_error("send command to world failed");
             }
-            std::cout<<"send success"<<std::endl;
+            //std::cout<<"send success"<<std::endl;
         }catch(std::exception &e){
             std::cout<<"Amazon: send command to world failed"<<std::endl;
             return -1;
@@ -89,10 +91,14 @@ int send_ApurchaseMore_to_world(int wh_id,std::vector<AProduct> &products,\
     OrderInfo orderinfo{packageid,accountname,deliver_x,deliver_y};
     seqnum_to_orderinfo[seq_num]=orderinfo;
     shipid_to_whid[packageid]=wh_id;
+    
+    std::lock_guard<std::mutex> lock(purchase_mutex);
+    purchase_request_list.emplace_back(apurchasemore);
+    
     //std::lock_guard<std::mutex> lock(world_sock_mutex);
     std::cout<<"Amazon: send APurchaseMore to world shipid: "<<packageid<<" seq_num: "<<seq_num<<std::endl;
-    std::cout << "Before enqueueing Send_command_to_world" << std::endl;
-    std::cout<<"world sock in sending "<<world_sock<<std::endl;
+    // std::cout << "Before enqueueing Send_command_to_world" << std::endl;
+    // std::cout<<"world sock in sending "<<world_sock<<std::endl;
     //pool.enqueue(Send_command_to_world,acommands,seq_num);
     //Send_command_to_world(acommands,seq_num);
    // taskflow.emplace([=]() { Send_command_to_world(std::move(acommands),seq_num); });
@@ -100,12 +106,12 @@ int send_ApurchaseMore_to_world(int wh_id,std::vector<AProduct> &products,\
         // Create a new taskflow and add the task to it
     std::thread sending_thread(Send_command_to_world,acommands,seq_num);
     sending_thread.detach(); 
-    std::cout << "After enqueuing Send_command_to_world" << std::endl;
+    //std::cout << "After enqueuing Send_command_to_world" << std::endl;
     return 0;
 }
 
 int send_APack_to_world(int wh_id,google::protobuf::RepeatedPtrField<AProduct> products,long long shipid){
-
+    std::cout<<"Get into send APack to world"<<std::endl;
     APack apack;
     apack.set_whnum(wh_id);
     for(auto &p:products){
@@ -117,9 +123,11 @@ int send_APack_to_world(int wh_id,google::protobuf::RepeatedPtrField<AProduct> p
     apack.set_seqnum(seq_num);
     send_acks[seq_num]=false;
     ACommands acommands;
-    acommands.add_load()->CopyFrom(apack);
+    acommands.add_topack()->CopyFrom(apack);
     std::cout<<"Amazon: send APack to world shipid: "<<shipid<<" seqnum: "<<seq_num<<std::endl;
-    pool.enqueue(Send_command_to_world,acommands,seq_num);
+    // pool.enqueue(Send_command_to_world,acommands,seq_num);
+    std::thread sending_thread(Send_command_to_world,acommands,seq_num);
+    sending_thread.detach();
     return 0;
 }
 
@@ -174,6 +182,33 @@ int Process_Arrived(APurchaseMore now_arrived){
         std::cout<<"Amazon: seqnum_to_orderinfo not found"<<std::endl;
        // return -1;
     }
+
+    std::lock_guard<std::mutex> lock(purchase_mutex);
+    //iterate through the purchase map
+    for(auto &p:purchase_request_list){
+        //check wharehouse id and all the product info
+        if(p.whnum()==now_arrived.whnum() && p.things_size()==now_arrived.things_size()){
+            bool flag=true;
+            for(int i=0;i<p.things_size();i++){
+                if(p.things(i).id()!=now_arrived.things(i).id() || p.things(i).description()!=now_arrived.things(i).description() || p.things(i).count()!=now_arrived.things(i).count()){
+                    flag=false;
+                    break;
+                }
+            }
+            if(flag==true){
+                //find order info according to seqnum stored in p
+                auto it = seqnum_to_orderinfo.find(p.seqnum());
+                if(it==seqnum_to_orderinfo.end()){
+                    std::cout<<"Amazon: seqnum_to_orderinfo not found"<<std::endl;
+                    return -1;
+                }
+                std::cout<<"Amazon: find order info according to original seqnum: "<<p.seqnum()<<std::endl;
+                OrderInfo &now_orderinfo=it->second;
+                send_APack_to_world(now_arrived.whnum(),now_arrived.things(),now_orderinfo.package_id);
+            }
+        }
+    }
+
     // OrderInfo &now_orderinfo=it->second;
     // send_APack_to_world(now_arrived.whnum(),now_arrived.things(),now_orderinfo.package_id);
     // //TO-DO： update order status to be packing
@@ -197,12 +232,15 @@ int Process_APacked(APacked now_packed){
         send_acks_to_world(now_packed.seqnum());
     }
     recv_acks[now_packed.seqnum()]=true;
-    Update_Order_Status(now_packed.shipid(),"packed");
-    while(shipid_to_truckid.find(now_packed.shipid())==shipid_to_truckid.end()){
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-    Update_Order_Status(now_packed.shipid(),"loading");
-    send_APutOnTruck_to_world(shipid_to_whid[now_packed.shipid()],shipid_to_truckid[now_packed.shipid()],now_packed.shipid());
+    // Update_Order_Status(now_packed.shipid(),"packed");
+    // while(shipid_to_truckid.find(now_packed.shipid())==shipid_to_truckid.end()){
+    //     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    //     std::cout<<"Amazon: wait for UATruckArrived"<<std::endl;
+    // }
+    // Update_Order_Status(now_packed.shipid(),"loading");
+    //send_APutOnTruck_to_world(shipid_to_whid[now_packed.shipid()],shipid_to_truckid[now_packed.shipid()],now_packed.shipid());
+   
+    send_APutOnTruck_to_world(1,1,1);
    
     send_acks_to_world(now_packed.seqnum());
     return 0;
@@ -244,7 +282,7 @@ int Process_Aresponse(AResponses aresponses){
     //AErr error received
     //Print error message 
     for(auto &now_error:aresponses.error()){
-        std::cout<<"Amazon: ereor: "<<now_error.err()<<" originseqnum: "<<now_error.originseqnum()<<std::endl;
+        std::cout<<"Amazon: world error: "<<now_error.err()<<" originseqnum: "<<now_error.originseqnum()<<std::endl;
         send_acks_to_world(now_error.seqnum());
     }
 

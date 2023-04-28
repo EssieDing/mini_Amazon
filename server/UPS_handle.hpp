@@ -21,7 +21,7 @@ int Send_command_to_UPS(AUCommands aucommands,int seq_num=-1){
     
     while(true){
         // whether continue looping
-        if(send_acks[seq_num]==true){
+        if(seq_num!=-1 && send_acks[seq_num]==true){
             if(seq_num!=-1){
                 break;
             }
@@ -39,7 +39,7 @@ int Send_command_to_UPS(AUCommands aucommands,int seq_num=-1){
         // seq_num==-1 means send ack back, no need to wait for ack
         if(seq_num==-1) break;
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::seconds(5));
     }       
     
     return 0;
@@ -63,8 +63,9 @@ int Send_AUInitPickUP_to_UPS(int wh_id,std::string accountname,AUDeliveryLocatio
     AUCommands aucommands;
     aucommands.add_pickupreq()->CopyFrom(auinitpickup);
     std::cout<<"Send_AUInitPickUP_to_UPS seq_num: "<<seq_num<<std::endl;
-    // std::thread sending_thread(Send_command_to_UPS,aucommands,seq_num);
-    // sending_thread.detach();
+    std::cout<<"AUInitPickUP info: wh_id: "<<wh_id<<" accountname: "<<accountname<<std::endl;
+    std::thread sending_thread(Send_command_to_UPS,aucommands,seq_num);
+    sending_thread.detach();
     return 0;
 }
 
@@ -76,9 +77,9 @@ int Send_AULoaded_to_UPS(int shipid){
     send_acks[seq_num]=false;
     AUCommands aucommands;
     aucommands.add_loaded()->CopyFrom(auloaded);
-    std::cout<<"Send_AULoaded_to_UPS seq_num: "<<seq_num<<std::endl;
-    // std::thread sending_thread (Send_command_to_UPS,aucommands,seq_num);
-    // sending_thread.detach();
+    std::cout<<"Send_AULoaded_to_UPS shipid: " <<shipid<<" seq_num: "<<seq_num<<std::endl;
+    std::thread sending_thread (Send_command_to_UPS,aucommands,seq_num);
+    sending_thread.detach();
     return 0;
 }
 
@@ -87,8 +88,8 @@ int Send_ack_to_UPS(int ack){
     AUCommands aucommands;
     aucommands.add_acks(ack);
     std::cout<<"Send_received ack to UPS ack: "<<ack<<std::endl;
-    // std::thread  sending_thread(Send_command_to_UPS,aucommands);
-    // sending_thread.detach();
+    std::thread sending_thread(Send_command_to_UPS,aucommands,-1);
+    sending_thread.detach();
     return 0;
 }
 
@@ -99,6 +100,8 @@ int Process_UACommands(UACommands uacommands){
     // send ack to ups
     for(auto &now_truckarrived:uacommands.truckarrived()){
         //receive the commands before
+        std::cout<<"Received truckarrived from UPS truckid: "<<now_truckarrived.truckid()<<std::endl;
+
         if(recv_acks[now_truckarrived.seqnum()]==true){
                    Send_ack_to_UPS(now_truckarrived.seqnum());
         }

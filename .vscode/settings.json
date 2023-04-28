@@ -68,6 +68,13 @@
         "strstream": "cpp",
         "*.inc": "cpp",
         "*.ipp": "cpp",
-        "any": "cpp"
+        "any": "cpp",
+        "forward_list": "cpp",
+        "regex": "cpp",
+        "hash_map": "cpp",
+        "scoped_allocator": "cpp",
+        "shared_mutex": "cpp",
+        "cfenv": "cpp",
+        "valarray": "cpp"
     }
 }
