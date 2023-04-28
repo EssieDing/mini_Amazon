@@ -63,6 +63,7 @@ extern std::map<long long, int> shipid_to_truckid; //
 //Set in send_ApurchaseMore_to_world
 extern std::map<long long, int> shipid_to_whid; //
 
+extern const int num_of_warehouses;
 
 
 static long long get_server_seq_num(){

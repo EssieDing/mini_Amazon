@@ -93,8 +93,8 @@ int receive_data_from_frontend(int Connect){
 
 int FrontendHandler(int port){
     //TEST!
-    //test_send_Apurchasemore();
-    test_send_AUInitPickUP_to_UPS();
+    test_send_Apurchasemore();
+    //test_send_AUInitPickUP_to_UPS();
     
     
     struct sockaddr_in serv_addr;

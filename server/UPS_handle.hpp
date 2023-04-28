@@ -131,6 +131,7 @@ int Process_UACommands(UACommands uacommands){
     //acks received
     //update acks
     for(auto &now_ack:uacommands.acks()){
+        std::cout<<"Amazon: received ack from UPS ack: "<<now_ack<<std::endl;
         send_acks[now_ack]=true;
     }
     return 0;
@@ -139,27 +140,30 @@ int Process_UACommands(UACommands uacommands){
 
 int receive_UACommands_from_UPS(){
     std::cout<<"UPS receiver running"<<std::endl;
-    UACommands uacommands;
-    try{
-        //receive from ups
-        std::unique_ptr<GPBFileInputStream> input(new GPBFileInputStream(ups_sock));
-        if(recvMesgFrom(uacommands,input.get())!=true){
-            throw std::runtime_error("receive command from ups failed");
+    while(true){
+        UACommands uacommands;
+        try{
+            //receive from ups
+            std::unique_ptr<GPBFileInputStream> input(new GPBFileInputStream(ups_sock));
+            if(recvMesgFrom(uacommands,input.get())!=true){
+                throw std::runtime_error("receive command from ups failed");
+            }
+        }catch(std::exception &e){
+            std::cout<<"Amazon: receive command from ups failed"<<std::endl;
+            return -1;
         }
-    }catch(std::exception &e){
-        std::cout<<"Amazon: receive command from ups failed"<<std::endl;
-        return -1;
+        std::cout<<"receive_UACommands_from_UPS"<<std::endl;
+        Process_UACommands(std::move(uacommands));
     }
-    std::cout<<"receive_UACommands_from_UPS"<<std::endl;
-    Process_UACommands(std::move(uacommands));
     return 0;
 }
 
 
 void UPSHandle(){
-    while(true){
-        receive_UACommands_from_UPS();
-    }
+    // while(true){
+    //     receive_UACommands_from_UPS();
+    // }
+    receive_UACommands_from_UPS();
 }
 
 

@@ -20,8 +20,8 @@
 #include "UPS_handle.hpp"
 
 std::mutex world_sock_mutex;
-std::mutex purchase_mutex;
-std::vector<APurchaseMore> purchase_request_list;
+std::mutex purchase_mutex[20];
+std::vector<APurchaseMore> purchase_request_list[20];
 
 //--------------------send message to world--------------------
 
@@ -92,8 +92,8 @@ int send_ApurchaseMore_to_world(int wh_id,std::vector<AProduct> &products,\
     seqnum_to_orderinfo[seq_num]=orderinfo;
     shipid_to_whid[packageid]=wh_id;
     
-    std::lock_guard<std::mutex> lock(purchase_mutex);
-    purchase_request_list.emplace_back(apurchasemore);
+    std::lock_guard<std::mutex> lock(purchase_mutex[wh_id]);
+    purchase_request_list[wh_id].emplace_back(apurchasemore);
     
     //std::lock_guard<std::mutex> lock(world_sock_mutex);
     std::cout<<"Amazon: send APurchaseMore to world shipid: "<<packageid<<" seq_num: "<<seq_num<<std::endl;
@@ -178,9 +178,9 @@ int Process_Arrived(APurchaseMore now_arrived){
     }
     recv_acks[now_arrived.seqnum()]=true;
 
-    std::lock_guard<std::mutex> lock(purchase_mutex);
+    std::lock_guard<std::mutex> lock(purchase_mutex[now_arrived.whnum()]);
     //iterate through the purchase map
-    for(auto &p:purchase_request_list){
+    for(auto &p:purchase_request_list[now_arrived.whnum()]){
         //check wharehouse id and all the product info
         if(p.whnum()==now_arrived.whnum() && p.things_size()==now_arrived.things_size()){
             bool flag=true;

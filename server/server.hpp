@@ -27,16 +27,19 @@
 #include "test_backend.hpp"
 
 void Init_warehouse(){
-    w_list.push_back(Warehouse(1,1,1));
-    w_list.push_back(Warehouse(2,2,2));
-    w_list.push_back(Warehouse(3,3,3));
-    w_list.push_back(Warehouse(4,4,4));
-    w_list.push_back(Warehouse(5,5,5));
-    w_list.push_back(Warehouse(6,6,6));
-    w_list.push_back(Warehouse(7,7,7));
-    w_list.push_back(Warehouse(8,8,8));
-    w_list.push_back(Warehouse(9,9,9));
-    w_list.push_back(Warehouse(10,10,10));
+    // w_list.push_back(Warehouse(1,1,1));
+    // w_list.push_back(Warehouse(2,2,2));
+    // w_list.push_back(Warehouse(3,3,3));
+    // w_list.push_back(Warehouse(4,4,4));
+    // w_list.push_back(Warehouse(5,5,5));
+    // w_list.push_back(Warehouse(6,6,6));
+    // w_list.push_back(Warehouse(7,7,7));
+    // w_list.push_back(Warehouse(8,8,8));
+    // w_list.push_back(Warehouse(9,9,9));
+    // w_list.push_back(Warehouse(10,10,10));
+    for(int i=1;i<=num_of_warehouses;i++){
+        w_list.push_back(Warehouse(i,i,i));
+    }
 }
 
 

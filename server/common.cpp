@@ -22,6 +22,8 @@ std::vector<Warehouse> w_list;
 std::bitset<100000> send_acks; //whether receiver ack for sent message
 std::bitset<100000> recv_acks; //whether finished received message
 
+const int num_of_warehouses = 10;
+
 std::map<long long, OrderInfo> seqnum_to_orderinfo;
 std::map<long long, int> shipid_to_truckid;
 std::map<long long, int> shipid_to_whid;
