@@ -17,7 +17,7 @@
 #include "world_handle.hpp"
 
 //--------------------send message to ups--------------------
-int Send_command_to_UPS(AUCommands &aucommands,int seq_num=-1){
+int Send_command_to_UPS(AUCommands aucommands,int seq_num=-1){
     
     while(true){
         // whether continue looping
@@ -63,7 +63,8 @@ int Send_AUInitPickUP_to_UPS(int wh_id,std::string accountname,AUDeliveryLocatio
     AUCommands aucommands;
     aucommands.add_pickupreq()->CopyFrom(auinitpickup);
     std::cout<<"Send_AUInitPickUP_to_UPS seq_num: "<<seq_num<<std::endl;
-    pool.enqueue(Send_command_to_UPS,aucommands,seq_num);
+    // std::thread sending_thread(Send_command_to_UPS,aucommands,seq_num);
+    // sending_thread.detach();
     return 0;
 }
 
@@ -76,7 +77,8 @@ int Send_AULoaded_to_UPS(int shipid){
     AUCommands aucommands;
     aucommands.add_loaded()->CopyFrom(auloaded);
     std::cout<<"Send_AULoaded_to_UPS seq_num: "<<seq_num<<std::endl;
-    pool.enqueue(Send_command_to_UPS,aucommands,seq_num);
+    // std::thread sending_thread (Send_command_to_UPS,aucommands,seq_num);
+    // sending_thread.detach();
     return 0;
 }
 
@@ -85,12 +87,13 @@ int Send_ack_to_UPS(int ack){
     AUCommands aucommands;
     aucommands.add_acks(ack);
     std::cout<<"Send_received ack to UPS ack: "<<ack<<std::endl;
-    pool.enqueue(Send_command_to_UPS,aucommands,-1);
+    // std::thread  sending_thread(Send_command_to_UPS,aucommands);
+    // sending_thread.detach();
     return 0;
 }
 
 //--------------------receive message from ups--------------------
-int Process_UACommands(UACommands &uacommands){
+int Process_UACommands(UACommands uacommands){
     // TruckArrived received
     // update truck status
     // send ack to ups
