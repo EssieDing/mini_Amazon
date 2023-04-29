@@ -117,7 +117,8 @@ def sendOrder(order, item_id, item_descriptions, item_quantity):
     xml_str = ET.tostring(root, encoding='utf-8', method='xml')   
     print(xml_str)
     
-    HOST = '127.0.0.1'
+    #HOST = '127.0.0.1'
+    HOST = "vcm-32242.vm.duke.edu"
     PORT = 8873
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         try:

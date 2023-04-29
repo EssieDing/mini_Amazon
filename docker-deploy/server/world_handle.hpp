@@ -270,7 +270,7 @@ int Process_APacked(APacked now_packed){
     while(shipid_to_truckid.find(now_packed.shipid())==shipid_to_truckid.end()){
         std::this_thread::sleep_for(std::chrono::seconds(5));
        /// FORTEST
-       std::cout<<"Amazon: wait for UATruckArrived"<<std::endl;
+       std::cout<<"Amazon: wait for UATruckArrived shipid: "<<now_packed.shipid()<<std::endl;
     }
     Update_Order_Status(now_packed.shipid(),"loading");
     send_APutOnTruck_to_world(shipid_to_whid[now_packed.shipid()],shipid_to_truckid[now_packed.shipid()],now_packed.shipid());

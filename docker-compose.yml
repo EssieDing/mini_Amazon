@@ -27,10 +27,20 @@ services:
       command: /code/runserver.sh
       volumes:
         - ./docker-deploy/amazonWeb:/code
-      ports:
-        - "8000:8000"
+      # ports:
+      #   - "8000:8000"
+      expose:
+        - "8000"
       depends_on:
         - frontend-init
+  nginx:
+     image: nginx:latest
+     ports:
+       - "8000:8000"
+     volumes:
+       - ./nginx/config:/etc/nginx/conf.d
+     depends_on:
+       - frontend
 
 
   backend:
