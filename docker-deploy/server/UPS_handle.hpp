@@ -70,7 +70,7 @@ int Send_AUInitPickUP_to_UPS(int wh_id,std::string accountname,AUDeliveryLocatio
     send_acks[seq_num]=false;
     AUCommands aucommands;
     aucommands.add_pickupreq()->CopyFrom(auinitpickup);
-    std::cout<<"Amazon: Send_AUInitPickUP_to_UPS seq_num: "<<seq_num<<std::endl;
+    std::cout<<"Amazon: Send AUInitPickUP toUPS seq_num: "<<seq_num<<std::endl;
     std::cout<<"Amazon: AUInitPickUP info: wh_id: "<<wh_id<<" accountname: "<<accountname<<std::endl;
     std::thread sending_thread(Send_command_to_UPS,aucommands,seq_num);
     sending_thread.detach();
@@ -85,7 +85,7 @@ int Send_AULoaded_to_UPS(int shipid){
     send_acks[seq_num]=false;
     AUCommands aucommands;
     aucommands.add_loaded()->CopyFrom(auloaded);
-    std::cout<<"Amazon: Send_AULoaded_to_UPS shipid: " <<shipid<<" seq_num: "<<seq_num<<std::endl;
+    std::cout<<"Amazon: Send AULoaded to UPS shipid: " <<shipid<<" seq_num: "<<seq_num<<std::endl;
     std::thread sending_thread (Send_command_to_UPS,aucommands,seq_num);
     sending_thread.detach();
     return 0;
@@ -95,7 +95,7 @@ int Send_AULoaded_to_UPS(int shipid){
 int Send_ack_to_UPS(int ack){
     AUCommands aucommands;
     aucommands.add_acks(ack);
-    std::cout<<"Amazon: Send_received ack to UPS ack: "<<ack<<std::endl;
+    std::cout<<"Amazon: Send received ack to UPS ack: "<<ack<<std::endl;
     std::thread sending_thread(Send_command_to_UPS,aucommands,-1);
     sending_thread.detach();
     return 0;

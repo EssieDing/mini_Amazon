@@ -6,6 +6,10 @@ from django.contrib.auth.decorators import login_required
 import socket
 import xml.etree.ElementTree as ET
 # from .tasks import order_created
+from django.core.mail import send_mail
+from django.core.mail import EmailMessage
+
+
 
 def order_create(request):
     cart = Cart(request)
@@ -52,36 +56,47 @@ def order_create(request):
     return render(request,
                   'order/create.html',
                   {'cart': cart, 'form': form})
-    
+
+
 @login_required
 def viewOrder(request):
-    order_list = Order.objects.filter(owner=request.user)
-    id_list = []
-    name_list =[]
-    price_list =[]
-    
-    for order in order_list:
-        item_list = OrderItem.objects.filter(order = order)
-        item_id = ""
-        item_name = ""
-        item_price = 0
-        for item in item_list:
-            item_id += str(item.id)
-            item_name += item.product.name
-            item_price += item.price
-        id_list.append(item_id)
-        name_list.append(item_name)
-        price_list.append(item_price)
-        
-    
-        
+    order_list = Order.objects.filter(owner=request.user).order_by('id')
+            
     context = {
         'order_list':order_list,
-        'id_list':id_list,
-        'name_list':name_list,
-        'price_list':price_list,
     }
-    return render(request, 'order/orders.html', context)
+    return render(request, 'order/orders.html', context)  
+
+
+# @login_required
+# def viewOrder(request):
+#     order_list = Order.objects.filter(owner=request.user)
+#     id_list = []
+#     name_list =[]
+#     price_list =[]
+    
+#     for order in order_list:
+#         item_list = OrderItem.objects.filter(order = order)
+#         item_id = ""
+#         item_name = ""
+#         item_price = 0
+#         for item in item_list:
+#             item_id += str(item.id)
+#             item_name += item.product.name
+#             item_price += item.price
+#         id_list.append(item_id)
+#         name_list.append(item_name)
+#         price_list.append(item_price)
+        
+    
+        
+#     context = {
+#         'order_list':order_list,
+#         'id_list':id_list,
+#         'name_list':name_list,
+#         'price_list':price_list,
+#     }
+#     return render(request, 'order/orders.html', context)
 
 # send order info to the server socket:
 #  order: id, addr_x, addr_y, ups_id, product_description, id, quantity, userName
@@ -117,6 +132,9 @@ def sendOrder(order, item_id, item_descriptions, item_quantity):
     xml_str = ET.tostring(root, encoding='utf-8', method='xml')   
     print(xml_str)
     
+   
+    
+    
     #HOST = '127.0.0.1'
     HOST = "vcm-32242.vm.duke.edu"
     PORT = 8873
@@ -127,5 +145,12 @@ def sendOrder(order, item_id, item_descriptions, item_quantity):
             s.sendall(xml_str)
         except socket.error:
             print ("Couldn't connect with server or send xml")
+    
+    message_to_send = "Order placed successfully! order_id: " + str(order_id) +" account_name: " + str(userName)+ " addr_x: " + str(addr_x) + " addr_y: " + str(addr_y) 
+    email = EmailMessage('Order placed',
+                    message_to_send, 
+                    to=[order.owner.email],)
+    email.send(fail_silently=False)
+    print('ALERT: email sent to '+ order.owner.email )
 
 

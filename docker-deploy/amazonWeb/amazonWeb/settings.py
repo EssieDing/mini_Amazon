@@ -75,6 +75,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'amazonWeb.wsgi.application'
 
+#dummy
+EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
+# real
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True 
+EMAIL_HOST ='smtp-mail.outlook.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'ece568_hw@outlook.com'
+EMAIL_HOST_PASSWORD = '123ECE568'
+DEFAULT_FROM_EMAIL= 'ece568_hw@outlook.com'
+
+
+
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
