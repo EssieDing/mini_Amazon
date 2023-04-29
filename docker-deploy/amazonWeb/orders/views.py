@@ -150,7 +150,7 @@ def sendOrder(order, item_id, item_descriptions, item_quantity):
     email = EmailMessage('Order placed',
                     message_to_send, 
                     to=[order.owner.email],)
-    email.send(fail_silently=False)
+    email.send(fail_silently=True)
     print('ALERT: email sent to '+ order.owner.email )
 
 

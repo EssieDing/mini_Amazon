@@ -70,7 +70,7 @@ int Send_AUInitPickUP_to_UPS(int wh_id,std::string accountname,AUDeliveryLocatio
     send_acks[seq_num]=false;
     AUCommands aucommands;
     aucommands.add_pickupreq()->CopyFrom(auinitpickup);
-    std::cout<<"Amazon: Send AUInitPickUP toUPS seq_num: "<<seq_num<<std::endl;
+    std::cout<<"Amazon: Send AUInitPickUP to UPS seq_num: "<<seq_num<<std::endl;
     std::cout<<"Amazon: AUInitPickUP info: wh_id: "<<wh_id<<" accountname: "<<accountname<<std::endl;
     std::thread sending_thread(Send_command_to_UPS,aucommands,seq_num);
     sending_thread.detach();
