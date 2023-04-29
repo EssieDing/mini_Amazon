@@ -18,7 +18,7 @@
 
 //--------------------send message to ups--------------------
 int Send_command_to_UPS(AUCommands aucommands,int seq_num=-1){
-   // std::cout<<"Get into Send_command_to_UPS"<<std::endl;
+    std::cout<<"Get into Send_command_to_UPS"<<std::endl;
     while(true){
         // whether continue looping
         if(seq_num!=-1 && send_acks[seq_num]==true){

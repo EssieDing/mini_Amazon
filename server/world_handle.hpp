@@ -100,7 +100,7 @@ int send_ApurchaseMore_to_world(int wh_id,std::vector<AProduct> &products,\
     purchase_request_list[wh_id].emplace_back(apurchasemore);
     
     //std::lock_guard<std::mutex> lock(world_sock_mutex);
-    std::cout<<"Amazon: send APurchaseMore to world shipid: "<<packageid<<" seq_num: "<<seq_num<<std::endl;
+    std::cout<<"Amazon: send APurchaseMore to world shipid: "<<packageid<<"warehouse: "<<wh_id<< " seq_num: "<<seq_num<<std::endl;
     // std::cout << "Before enqueueing Send_command_to_world" << std::endl;
     // std::cout<<"world sock in sending "<<world_sock<<std::endl;
     //pool.enqueue(Send_command_to_world,acommands,seq_num);
@@ -183,20 +183,45 @@ int Process_Arrived(APurchaseMore now_arrived){
         send_acks_to_world(now_arrived.seqnum());
     }
     recv_acks[now_arrived.seqnum()]=true;
-
+    std::cout<<"Amazon: receive APurchaseMore whnum: "<<now_arrived.whnum()<<std::endl;
+  ;
     std::lock_guard<std::mutex> lock(purchase_mutex[now_arrived.whnum()]);
     //iterate through the purchase map
-    for(auto &p:purchase_request_list[now_arrived.whnum()]){
+    //print arrived things
+    // std::cout<<"Amazon: receive APurchaseMore things: "<<std::endl;
+    // for(auto &p:now_arrived.things()){
+    //     std::cout<<"Amazon: receive APurchaseMore id: "<<p.id()<<" description: "<<p.description()<<" count: "<<p.count()<<std::endl;
+    // }
+    std::map<int,std::pair<std::string,int>> arrived_things;
+    for(auto &p:now_arrived.things()){
+        arrived_things[p.id()]=std::make_pair(p.description(),p.count());
+    }
+    for(auto now_p=purchase_request_list[now_arrived.whnum()].begin();now_p!=purchase_request_list[now_arrived.whnum()].end();now_p++){
         //check wharehouse id and all the product info
+        auto p=*now_p;
+        //print stored things
+        // std::cout<<"Amazon: stored APurchaseMore things: "<<std::endl;
+        // for(auto &p:now_p->things()){
+        //     std::cout<<"Amazon: stored APurchaseMore id: "<<p.id()<<" description: "<<p.description()<<" count: "<<p.count()<<std::endl;
+        // }
         if(p.whnum()==now_arrived.whnum() && p.things_size()==now_arrived.things_size()){
             bool flag=true;
-            for(int i=0;i<p.things_size();i++){
-                if(p.things(i).id()!=now_arrived.things(i).id() || p.things(i).description()!=now_arrived.things(i).description() || p.things(i).count()!=now_arrived.things(i).count()){
+            for(auto &p:p.things()){
+                if(arrived_things.find(p.id())==arrived_things.end()){
+                    flag=false;
+                    break;
+                }
+                if(arrived_things[p.id()].first!=p.description() || arrived_things[p.id()].second!=p.count()){
                     flag=false;
                     break;
                 }
             }
+            /*compare two repeated field - things*/
+
+            /**/
+
             if(flag==true){
+                
                 //find order info according to seqnum stored in p
                 auto it = seqnum_to_orderinfo.find(p.seqnum());
                 if(it==seqnum_to_orderinfo.end()){
@@ -217,7 +242,8 @@ int Process_Arrived(APurchaseMore now_arrived){
                 Send_AUInitPickUP_to_UPS(now_arrived.whnum(),now_orderinfo.account_name,\
                     audeliverylocation,now_arrived.things());
                 //remove stored order info
-                //purchase_request_list[now_arrived.whnum()].erase();
+                purchase_request_list[now_arrived.whnum()].erase(now_p);
+                break;
             }
         }
     }

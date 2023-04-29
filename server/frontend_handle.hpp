@@ -25,6 +25,7 @@ int select_warehouse(int x,int y){
             min_id=w.id;
         }
     }
+    std::cout<<"Amazon: select warehouse "<<min_id<<std::endl;
     return min_id;
 }
 
@@ -46,7 +47,7 @@ int Process_order(tinyxml2::XMLDocument& doc ){
     long long order_id=std::stoll(doc.RootElement()->FirstChildElement("order_id")->GetText());
     int addr_x=std::stoi(doc.RootElement()->FirstChildElement("addr_x")->GetText());
     int addr_y=std::stoi(doc.RootElement()->FirstChildElement("addr_y")->GetText());
-    std::cout<< products[0].GetDescriptor << order_id << accountname << addr_x << " "<< addr_y << std::endl;
+    //std::cout<< products[0].GetDescriptor << order_id << accountname << addr_x << " "<< addr_y << std::endl;
     // send_ApurchaseMore_to_world
     int warehouse_id = select_warehouse(addr_x,addr_y);
     // std::cout<<"Amazon: send order to world in Process_order"<<std::endl;
