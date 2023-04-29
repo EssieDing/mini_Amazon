@@ -38,7 +38,8 @@ typedef struct warehouse{
 extern std::vector<Warehouse> w_list;
 
 extern std::bitset<100000> send_acks; //whether receiver ack for sent message
-extern std::bitset<100000> recv_acks; //whether finished received message
+extern std::bitset<100000> recv_ups_acks; //whether finished received message
+extern std::bitset<100000> recv_world_acks; //whether finished received message
 
 typedef struct OrderInfo{
     long long package_id;

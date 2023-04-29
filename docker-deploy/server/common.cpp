@@ -17,7 +17,8 @@ int ups_sock = -1;
 std::vector<Warehouse> w_list;
 
 std::bitset<100000> send_acks; //whether receiver ack for sent message
-std::bitset<100000> recv_acks; //whether finished received message
+std::bitset<100000> recv_ups_acks; //whether finished received message
+std::bitset<100000> recv_world_acks; //whether finished received message
 
 const int num_of_warehouses = 10;
 

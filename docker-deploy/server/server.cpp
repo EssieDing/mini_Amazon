@@ -16,13 +16,14 @@ int main(int argc, char *argv[]) {
 
     Init_warehouse();
     memset(&send_acks,0,sizeof(send_acks));
-    memset(&recv_acks,0,sizeof(recv_acks));
+    memset(&recv_ups_acks,0,sizeof(recv_ups_acks));
+    memset(&recv_world_acks,0,sizeof(recv_world_acks));
 
     int world_id;
     for(;;){
         if((world_sock=Amazon_connect_to_world(23456,world_id))==-1){
             std::cout<<"Amazon: Failed to connect to world"<<std::endl;
-            sleep(1);
+            sleep(5);
             continue;
         }
         else{
@@ -31,7 +32,7 @@ int main(int argc, char *argv[]) {
         //break;
         if((ups_sock=Amazon_wait_for_UPS(5688,world_id))==-1){
             std::cout<<"Amazon: Failed to connect to UPS"<<std::endl;
-            sleep(1);
+            sleep(5);
             continue;
         }
         else{

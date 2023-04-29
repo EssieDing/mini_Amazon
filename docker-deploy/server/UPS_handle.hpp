@@ -110,13 +110,14 @@ int Process_UACommands(UACommands uacommands){
         //receive the commands before
         std::cout<<"Amazon: Received truckarrived from UPS truckid: "<<now_truckarrived.truckid()<<std::endl;
 
-        if(recv_acks[now_truckarrived.seqnum()]==true){
+        if(recv_ups_acks[now_truckarrived.seqnum()]==true){
                    Send_ack_to_UPS(now_truckarrived.seqnum());
         }
+        recv_ups_acks[now_truckarrived.seqnum()]=true;
         shipid_to_truckid[now_truckarrived.shipid()]=now_truckarrived.truckid();
         
         Send_ack_to_UPS(now_truckarrived.seqnum());
-        recv_acks[now_truckarrived.seqnum()]=true;
+       
     }
 
     // UADelievered received
@@ -124,13 +125,14 @@ int Process_UACommands(UACommands uacommands){
     // send ack to ups
     for(auto &now_delivered:uacommands.delivered()){
         std::cout<<"Amazon: Received delivered from UPS packageid: "<<now_delivered.packageid()<<std::endl;
-        if(recv_acks[now_delivered.seqnum()]==true){
+        if(recv_ups_acks[now_delivered.seqnum()]==true){
             Send_ack_to_UPS(now_delivered.seqnum());
 
         }
+        recv_ups_acks[now_delivered.seqnum()]=true;
         Update_Order_Status(now_delivered.packageid(),"delivered");
         Send_ack_to_UPS(now_delivered.seqnum());
-        recv_acks[now_delivered.seqnum()]=true;
+        
     }
 
     //acks received

@@ -115,7 +115,7 @@ int send_ApurchaseMore_to_world(int wh_id,std::vector<AProduct> &products,\
 }
 
 int send_APack_to_world(int wh_id,google::protobuf::RepeatedPtrField<AProduct> products,long long shipid){
-    std::cout<<"Get into send APack to world"<<std::endl;
+    //std::cout<<"Get into send APack to world"<<std::endl;
     APack apack;
     apack.set_whnum(wh_id);
     for(auto &p:products){
@@ -179,10 +179,10 @@ int send_acks_to_world(int ack){
 
 int Process_Arrived(APurchaseMore now_arrived){
     std::cout<<"Amazon: receive APurchaseMore arrived from world seqnum: "<<now_arrived.seqnum()<<std::endl;
-    if(recv_acks[now_arrived.seqnum()]==true){
+    if(recv_world_acks[now_arrived.seqnum()]==true){
         send_acks_to_world(now_arrived.seqnum());
     }
-    recv_acks[now_arrived.seqnum()]=true;
+    recv_world_acks[now_arrived.seqnum()]=true;
     std::cout<<"Amazon: receive APurchaseMore whnum: "<<now_arrived.whnum()<<std::endl;
   ;
     std::lock_guard<std::mutex> lock(purchase_mutex[now_arrived.whnum()]);
@@ -262,10 +262,10 @@ int Process_Arrived(APurchaseMore now_arrived){
 int Process_APacked(APacked now_packed){
 
     std::cout<<"Amazon: receive APacked from world shipid: "<<now_packed.shipid()<<" seqnum: "<<now_packed.seqnum()<<std::endl;
-    if(recv_acks[now_packed.seqnum()]==true){
+    if(recv_world_acks[now_packed.seqnum()]==true){
         send_acks_to_world(now_packed.seqnum());
     }
-    recv_acks[now_packed.seqnum()]=true;
+    recv_world_acks[now_packed.seqnum()]=true;
     Update_Order_Status(now_packed.shipid(),"packed");
     while(shipid_to_truckid.find(now_packed.shipid())==shipid_to_truckid.end()){
         std::this_thread::sleep_for(std::chrono::seconds(5));
@@ -308,10 +308,10 @@ int Process_Aresponse(AResponses aresponses){
     //Send AULoaded to UPS
     for(auto &now_loaded:aresponses.loaded()){
         std::cout<<"Amazon: receive ALoaded from world shipid: "<<now_loaded.shipid()<<" seqnum: "<<now_loaded.seqnum()<<std::endl;
-        if(recv_acks[now_loaded.seqnum()]==true){
+        if(recv_world_acks[now_loaded.seqnum()]==true){
             send_acks_to_world(now_loaded.seqnum());
         }
-        recv_acks[now_loaded.seqnum()]=true;
+        recv_world_acks[now_loaded.seqnum()]=true;
         Update_Order_Status(now_loaded.shipid(),"delivering");
         Send_AULoaded_to_UPS(now_loaded.shipid());
         send_acks_to_world(now_loaded.seqnum());
